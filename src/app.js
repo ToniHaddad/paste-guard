@@ -128,7 +128,10 @@
       const type = seg.placeholder.replace(/^\[|_\d+\]$/g, '').replace('REDACTED', 'OTHER');
       const s = el('span', 'tok t-' + type + ' restored', text);
       s.title = seg.placeholder + ' restored';
-      s.dir = 'auto';
+      // A number made of Arabic-Indic digits would otherwise display backwards inside a left-to-right
+      // line (bidi rule N1 treats the spaces between digit groups as right-to-left). Names stay 'auto'.
+      if (/[٠-٩]/.test(text) && !/[ء-ي]/.test(text)) s.classList.add('digits');
+      else s.dir = 'auto';
       return s;
     });
     if (!ans.value) { rest.textContent = ''; rest.appendChild(el('p', 'empty', 'The restored answer appears here.')); }

@@ -139,6 +139,7 @@ select { width: auto; min-height: 40px; padding: 8px 10px; }
   cursor: pointer; border-bottom: 2px solid currentColor; white-space: nowrap; unicode-bidi: isolate; direction: ltr;
 }
 .tok.restored { cursor: default; font-family: inherit; font-size: 1em; white-space: normal; direction: inherit; }
+.tok.restored.digits { direction: ltr; unicode-bidi: bidi-override; }
 .tok.kept { background: transparent !important; border-bottom: 2px dashed currentColor; font-weight: 500; font-family: inherit; font-size: 1em; white-space: normal; direction: inherit; }
 .ln .tok.kept { color: inherit; }
 .manual { list-style: none; padding: 0; margin: 8px 0 0; display: flex; gap: 6px; flex-wrap: wrap; }
