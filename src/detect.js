@@ -74,7 +74,8 @@
     const out = [];
     let m;
     while ((m = re.exec(text))) {
-      const raw = m[0];
+      let raw = m[0];
+      if (/['\u2019]s$/i.test(raw) && raw.length > 3 && !isArabicTok(raw)) raw = raw.slice(0, -2); // Khaled's -> Khaled
       const ar = isArabicTok(raw);
       out.push({
         s: m.index, e: m.index + raw.length, raw, ar,
@@ -92,7 +93,7 @@
     if (AR_NAMES.has(w)) return { amb: AMB_AR.has(w), s2: t.s };
     if (w.startsWith('\u0627\u0644') && AR_NAMES.has(w.slice(2))) return { amb: AMB_AR.has(w.slice(2)), s2: t.s };
     // single-letter prefix: and / with / for / so / like
-    if ('\u0648\u0628\u0644\u0641\u0643'.includes(t.raw[0]) && w.length >= 4) {
+    if (t.raw[0] === '\u0648' && w.length >= 4) {
       let r = w.slice(1);
       if (r.startsWith('\u0627\u0644') && r.length > 4) r = r.slice(2);
       if (AR_NAMES.has(r)) return { amb: true, s2: t.s + 1, prefixed: true, ambLoose: !AMB_AR.has(r) };
@@ -106,7 +107,8 @@
       if (t.ar) {
         const hit = arLookup(t);
         if (hit) {
-          t.kind = hit.amb && !hit.ambLoose ? 'amb' : 'name';
+          // "and Fatima" (one-letter prefix w) is a name; other prefixes need company: لدينا means "we have"
+          t.kind = hit.amb && !(hit.ambLoose && t.raw[0] === 'و') ? 'amb' : 'name';
           t.s2 = hit.s2;
         } else if (CONN_PRE.has(t.norm)) t.kind = 'conn';
         // compound "Abd al-X": the two words behave as one name
@@ -180,31 +182,47 @@
     return { a: idx, b };
   }
 
-  function arCapture(text, tokens, idx, needHit) {
+  // crude "looks like a verb" test for words that are not in the gazetteer
+  function verbLike(t) {
+    if (t.kind) return false;
+    const w = t.norm;
+    return (w.length >= 4 && 'يتن'.includes(w[0])) || (w.length >= 4 && w.endsWith('ت'));
+  }
+
+  function arCapture(text, tokens, idx, needHit, extra) {
     const t0 = tokens[idx];
     if (!t0 || !t0.ar || t0.norm.length < 2 || STOP_AR.has(t0.norm)) return null;
     const hit = t0.kind === 'name' || t0.kind === 'amb';
     if (needHit && !hit) return null;
-    if (!hit && t0.norm.startsWith('\u0627\u0644')) return null; // "the director", not a name
+    if (!hit && (t0.norm.startsWith('ال') || verbLike(t0))) return null; // "the director", a verb
     let b = idx, count = 1;
     while (b + 1 < tokens.length && count < 4 && adjacent(text, tokens[b], tokens[b + 1])) {
       const t = tokens[b + 1];
       if (t.kind === 'name' || t.kind === 'amb') { b++; count++; continue; }
       if (t.kind === 'conn' && tokens[b + 2] && adjacent(text, t, tokens[b + 2]) &&
           tokens[b + 2].ar && !STOP_AR.has(tokens[b + 2].norm) &&
-          (tokens[b + 2].kind || !tokens[b + 2].norm.startsWith('\u0627\u0644'))) { b += 2; count += 2; continue; }
+          (tokens[b + 2].kind || !tokens[b + 2].norm.startsWith('ال'))) { b += 2; count += 2; continue; }
       break;
+    }
+    // formal cues (السيد ...): one more unknown word is usually the family name
+    if (extra && b + 1 < tokens.length && adjacent(text, tokens[b], tokens[b + 1])) {
+      const t = tokens[b + 1];
+      if (t.ar && !t.kind && !STOP_AR.has(t.norm) && !t.norm.startsWith('ال') && !verbLike(t) &&
+          t.norm.length >= 3 && t.norm.length <= 9) b++;
     }
     return { a: idx, b };
   }
 
-  const LAT_TITLES = '(?<![\\p{L}])(?:Mr|Mrs|Ms|Mx|Miss|Dr|Prof|Mme|Mlle|Sheikh|Sheikha|Sr|Sra|Srta|D\u00F1a|Do\u00F1a|Don|Se\u00F1or|Se\u00F1ora|Se\u00F1orita|Monsieur|Madame|Mademoiselle|Docteur|Docteure|Ma\u00EEtre|Bwana|Bw|Bi|Mama|Mzee|Mwalimu|Imam|Father|P\u00E8re|Sister|S\u0153ur|Soeur|Abb\u00E9|Abu|Abou|Umm|Oum)(?![\\p{L}])\\.?|(?<![\\p{L}])M\\.';
+  const LAT_TITLES = '(?<![\\p{L}])(?:Mr|Mrs|Ms|Mx|Miss|Dr|Prof|Mme|Mlle|Sheikh|Sheikha|Sr|Sra|Srta|D\u00F1a|Do\u00F1a|Don|Se\u00F1or|Se\u00F1ora|Se\u00F1orita|Monsieur|Madame|Mademoiselle|Docteur|Docteure|Ma\u00EEtre|Bwana|Bw|Bi|Mama|Mzee|Mwalimu|Imam|Father|P\u00E8re|Sister|S\u0153ur|Soeur|Abb\u00E9)(?![\\p{L}])\\.?|(?<![\\p{L}])M\\.';
   const LAT_REL = '(?<![\\p{L}])(?:(?:son|daughter|wife|husband|widow|widower|mother|father|brother|sister|cousin|uncle|aunt|nephew|niece|spouse|guardian|partner|child|grandmother|grandfather) of|fils de|fille de|\u00E9pouse de|epouse de|femme de|mari de|veuve de|veuf de|m\u00E8re de|p\u00E8re de|fr\u00E8re de|s\u0153ur de|soeur de|cousin de|cousine de|oncle de|tante de|conjoint de|tuteur de|n\u00E9e|nee|dit|alias|known as|a\\.k\\.a\\.?|called|named|nomm\u00E9e?|appel\u00E9e?|d\u00E9nomm\u00E9e?|hijo de|hija de|esposa de|esposo de|madre de|padre de|hermano de|hermana de|llamado|llamada|mwana wa|mtoto wa|mke wa|mume wa|anaitwa)(?![\\p{L}])';
+  const LAT_KIN = '(?<![\\p{L}])(?:son|daughter|wife|husband|mother|father|brother|sister|cousin|uncle|aunt|nephew|niece|neighbou?r|friend|ward|child|spouse|partner|colleague|patient|beneficiary|client|caller|applicant|complainant|b\u00E9n\u00E9ficiaire|patiente|plaignante?|demandeur|demandeuse|fils|fille|\u00E9pouse|epouse|femme|mari|m\u00E8re|p\u00E8re|fr\u00E8re|s\u0153ur|soeur|cousine|oncle|tante|voisine?|amie?|enfant|coll\u00E8gue|hijo|hija|esposa|esposo|madre|padre|hermano|hermana|vecin[oa]|amig[oa]|ni\u00F1[oa]|mtoto|mke|mume|jirani|rafiki)(?![\\p{L}])\\s*,?\\s*';
+  const LAT_KUNYA = '(?<![\\p{L}])(?:Abu|Abou|Umm|Oum)(?![\\p{L}])';
   const LAT_LABEL = '(?<![\\p{L}])(?:name|nom|nombre|jina|beneficiary|b\u00E9n\u00E9ficiaire|beneficiario|beneficiaria|client|patient|head of household|chef de m\u00E9nage|chef de famille|complainant|plaignante?|applicant|demandeur|demandeuse|caller|interviewee|informant|contact person|focal point|caseworker|case worker|officer|supervisor|interpreter|interpr\u00E8te|reporter|guardian|tuteur|mother|father|m\u00E8re|p\u00E8re)\\s*[:\uFF1A]\\s*';
 
   const AR_P = '[\u0648\u0628\u0644\u0641\u0643]?';
   const AR_TITLES = `(?<![\\p{L}])${AR_P}(?:\u0627\u0644\u0633\u064A\u062F\u0629|\u0627\u0644\u0633\u064A\u062F|\u0627\u0644\u0622\u0646\u0633\u0629|\u0627\u0644\u0627\u0646\u0633\u0629|\u0627\u0644\u0623\u0633\u062A\u0627\u0630\u0629|\u0627\u0644\u0623\u0633\u062A\u0627\u0630|\u0627\u0644\u0627\u0633\u062A\u0627\u0630\u0629|\u0627\u0644\u0627\u0633\u062A\u0627\u0630|\u0627\u0644\u062F\u0643\u062A\u0648\u0631\u0629|\u0627\u0644\u062F\u0643\u062A\u0648\u0631|\u0627\u0644\u0634\u064A\u062E\u0629|\u0627\u0644\u0634\u064A\u062E|\u0627\u0644\u062D\u0627\u062C\u0629|\u0627\u0644\u062D\u0627\u062C|\u0627\u0644\u0645\u062F\u0639\u0648|\u0627\u0644\u0645\u062F\u0639\u0648\u0629|\u0627\u0644\u0645\u0648\u0627\u0637\u0646\u0629|\u0627\u0644\u0645\u0648\u0627\u0637\u0646|\u0639\u0627\u0626\u0644\u0629)(?![\\p{L}])`;
-  const AR_REL = `(?<![\\p{L}])${AR_P}(?:\u0627\u0628\u0646\u0629|\u0627\u0628\u0646|\u0628\u0646\u062A|\u0632\u0648\u062C\u0629|\u0632\u0648\u062C|\u0648\u0627\u0644\u062F\u0629|\u0648\u0627\u0644\u062F|\u0623\u062E\u062A|\u0627\u062E\u062A|\u0623\u062E|\u0627\u062E|\u0634\u0642\u064A\u0642\u0629|\u0634\u0642\u064A\u0642)(?:\u0647|\u0647\u0627|\u0647\u0645|\u064A)?(?![\\p{L}])`;
+  const AR_REL = `(?<![\\p{L}])${AR_P}(?:ابنته|ابنتها|بنته|بنتها|زوجته|زوجتها|والدته|والدتها|أخته|اخته|أختها|اختها|شقيقته|شقيقتها|جارته|جارتها|ابنه|ابنها|زوجها|والده|والدها|أخوه|اخوه|أخوها|اخوها|أخيه|أخيها|جاره|جارها|ابنة|ابن|بنت|زوجة|زوج|والدة|والد|أخت|اخت|أخ|اخ|شقيقة|شقيق|جارة|جار|الجارة|الجار|الأرملة|الارملة)(?![\\p{L}])`;
+  const AR_ROLE = `(?<![\\p{L}])${AR_P}(?:المريضة|المريض|المستفيدة|المستفيد|المتصلة|المتصل|الشاكية|الشاكي)(?![\\p{L}])`;
   const AR_KUNYA = '(?<![\\p{L}])(?:\u0623\u0628\u0648|\u0627\u0628\u0648|\u0623\u0645|\u0627\u0645)(?![\\p{L}])';
   const AR_LABEL = '(?<![\\p{L}])(?:\u0627\u0644\u0627\u0633\u0645|\u0627\u0644\u0645\u0633\u062A\u0641\u064A\u062F|\u0627\u0644\u0645\u0633\u062A\u0641\u064A\u062F\u0629|\u0627\u0644\u0645\u062A\u0635\u0644|\u0627\u0644\u0645\u062A\u0635\u0644\u0629|\u0645\u0642\u062F\u0645 \u0627\u0644\u0637\u0644\u0628|\u0645\u0642\u062F\u0645\u0629 \u0627\u0644\u0637\u0644\u0628|\u0627\u0644\u0634\u0627\u0643\u064A|\u0627\u0644\u0634\u0627\u0643\u064A\u0629|\u0631\u0628 \u0627\u0644\u0623\u0633\u0631\u0629)\\s*[:\uFF1A]\\s*';
 
@@ -216,7 +234,7 @@
   }
 
   function cuePersons(text, tokens, spans) {
-    const run = (src, ar, needHit, minGap, flags) => {
+    const run = (src, ar, needHit, minGap, flags, extra, withCue) => {
       const re = new RegExp(src, flags || 'gu');
       let m;
       while ((m = re.exec(text))) {
@@ -225,16 +243,19 @@
         if (k < 0) continue;
         const gap = text.slice(end, tokens[k].s);
         if (!/^[ \t\u00a0]*$/.test(gap) || (minGap && gap.length === 0 && !/\s$/.test(m[0]))) continue;
-        const cap = ar ? arCapture(text, tokens, k, needHit) : capCapture(text, tokens, k);
-        if (cap) spans.push({ start: tokens[cap.a].s2, end: tokens[cap.b].e, type: 'PERSON', source: 'cue' });
+        const cap = ar ? arCapture(text, tokens, k, needHit, extra) : capCapture(text, tokens, k);
+        if (cap) spans.push({ start: withCue ? m.index : tokens[cap.a].s2, end: tokens[cap.b].e, type: 'PERSON', source: 'cue' });
       }
     };
     run(LAT_TITLES, false, false, true);
     run(LAT_REL, false, false, true, 'giu');
     run(LAT_LABEL, false, false, false, 'giu');
-    run(AR_TITLES, true, false, true);
+    run(LAT_KIN, false, false, false, 'giu');
+    run(LAT_KUNYA, false, false, true, 'gu', false, true);
+    run(AR_TITLES, true, false, true, 'gu', true);
+    run(AR_ROLE, true, false, true, 'gu', true);
     run(AR_REL, true, false, true);
-    run(AR_KUNYA, true, true, true);
+    run(AR_KUNYA, true, true, true, 'gu', false, true);
     run(AR_LABEL, true, false, false);
   }
 
@@ -273,11 +294,11 @@
     'januari|februari|machi|aprili|mei|juni|julai|agosti|septemba|oktoba|novemba|desemba';
   const DATE = `(?:\\d{1,2}[\\/.\\-]\\d{1,2}[\\/.\\-]\\d{2,4}|\\d{4}[\\/.\\-]\\d{1,2}[\\/.\\-]\\d{1,2}|\\d{1,2}(?:st|nd|rd|th|er)?\\s+(?:of\\s+|de\\s+)?(?:${MONTHS})(?![\\p{L}])\\s*,?\\s+(?:de\\s+)?\\d{4}|(?:${MONTHS})(?![\\p{L}])\\s+\\d{1,2}(?:st|nd|rd|th)?,?\\s+\\d{4}|(?:19|20)\\d{2})(?![\\d\\/.\\-]\\d)`;
   const DOB_CUE = '(?<![\\p{L}])(?:born|DOB|D\\.O\\.B\\.?|date of birth|birth date|birthdate|n\u00E9e?|nee|date de naissance|naissance|fecha de nacimiento|nacido|nacida|naci\u00F3|tarehe ya kuzaliwa|alizaliwa|\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0645\u064A\u0644\u0627\u062F|\u062A\u0627\u0631\u064A\u062E \u0645\u064A\u0644\u0627\u062F|\u0645\u0648\u0644\u0648\u062F\u0629|\u0645\u0648\u0644\u0648\u062F|\u0645\u0648\u0627\u0644\u064A\u062F|\u0648\u0644\u062F\u062A|\u0648\u0644\u062F|\u0627\u0644\u0648\u0644\u0627\u062F\u0629)(?![\\p{L}])';
-  const DOB_RE = new RegExp(`${DOB_CUE}[\\s:\\-]*(?:(?:on|in|le|el|en|\u00E0|a|\u0641\u064A|\u0628\u062A\u0627\u0631\u064A\u062E|\u0639\u0627\u0645|\u0633\u0646\u0629)\\s+)?(${DATE})`, 'giu');
+  const DOB_RE = new RegExp(`${DOB_CUE}[\\s:\\-]*(?:(?:on|in|is|was|est|es|le|el|en|\u00E0|a|\u0641\u064A|\u0628\u062A\u0627\u0631\u064A\u062E|\u0639\u0627\u0645|\u0633\u0646\u0629)\\s+)?(${DATE})`, 'giu');
 
   const ID_CUE_I = new RegExp('(?<![\\p{L}])(?:passport|passeport|pasaporte|pasipoti|national id|identity card|identity number|id card|id number|id no|carte d[\'\u2019]identit\u00E9|carte nationale d[\'\u2019]identit\u00E9|carte d[\'\u2019]identite|pi\u00E8ce d[\'\u2019]identit\u00E9|c\u00E9dula|cedula|kitambulisho|huduma namba|huduma|unhcr|civil registry|registre civil|registro civil|\u062C\u0648\u0627\u0632 \u0633\u0641\u0631|\u062C\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631|\u0627\u0644\u062C\u0648\u0627\u0632|\u0631\u0642\u0645 \u0627\u0644\u0647\u0648\u064A\u0629|\u0631\u0642\u0645 \u0627\u0644\u062C\u0648\u0627\u0632|\u0628\u0637\u0627\u0642\u0629 \u0627\u0644\u0647\u0648\u064A\u0629|\u0627\u0644\u0647\u0648\u064A\u0629|\u0647\u0648\u064A\u0629|\u0631\u0642\u0645 \u0627\u0644\u0642\u064A\u062F|\u0631\u0642\u0645 \u0627\u0644\u0633\u062C\u0644|\u0633\u062C\u0644 \u0645\u062F\u0646\u064A|\u0625\u062E\u0631\u0627\u062C \u0642\u064A\u062F|\u0627\u062E\u0631\u0627\u062C \u0642\u064A\u062F)(?![\\p{L}])', 'giu');
   const ID_CUE_S = /(?<![\p{L}])(?:ID|I\.D\.|NID|CNI|CNIB|DNI|NIT|C\.C\.|CC)(?![\p{L}])/gu;
-  const ID_SEP = /(?:[\s:#.\-\u2013]|n\u00B0|n\u00BA|no\.?|num\.?|number|num\u00E9ro|numero|n\u00FAmero|\u0631\u0642\u0645|is|est|es)*/iuy;
+  const ID_SEP = /(?:[\s:#.\-\u2013]|n\u00B0|n\u00BA|number|num\u00E9ro|numero|n\u00FAmero|num\.?|no\.?|\u0631\u0642\u0645|was|as|is|est|es|de|del)*/iuy;
   const ID_TOKEN = /(?:[A-Z]{1,3}[ \-]?)?\d[\dA-Z.\-]{3,15}[\dA-Z]/uy;
 
   const PHONE_CAND = /(?<![\p{L}\p{N}_\/])\+?\d[\d\s().\-]{4,18}\d(?![\p{L}\p{N}_\/])/gu;
@@ -400,6 +421,50 @@
     return rest.concat(merged);
   }
 
+  // Strict mode: any Capitalised word that is not the first word of a sentence
+  // and not a known place/organisation/day/month word. High recall, many false
+  // alarms. Does nothing for Arabic, which has no capital letters.
+  function strictSpans(text, tokens, spans) {
+    let i = 0;
+    while (i < tokens.length) {
+      const t = tokens[i];
+      if (t.ar || !t.title || isStopLat(t) || t.raw.length < 3) { i++; continue; }
+      let j = i;
+      while (j + 1 < tokens.length && adjacent(text, tokens[j], tokens[j + 1]) && tokens[j + 1].title &&
+             !isStopLat(tokens[j + 1]) && tokens[j + 1].raw.length > 2) j++;
+      const atStart = sentenceStart(text, t.s);
+      if (!(atStart && i === j)) spans.push({ start: tokens[i].s, end: tokens[j].e, type: 'PERSON', source: 'strict' });
+      i = j + 1;
+    }
+  }
+
+  // Once a name has been found, find its other mentions in the same text,
+  // including a first name or surname on its own.
+  function repeatedNames(text, tokens, spans) {
+    const comps = new Set();
+    const persons = spans.filter((s) => s.type === 'PERSON' && s.source !== 'strict');
+    for (const sp of persons) {
+      for (const t of tokens) {
+        if (t.s < sp.start || t.e > sp.end || t.kind === 'conn' || t.kind === 'amb') continue;
+        if (t.norm.length < 3 || (t.ar ? STOP_AR.has(t.norm) : isStopLat(t))) continue;
+        comps.add(t.norm);
+      }
+    }
+    const inside = (t) => spans.some((s) => s.type === 'PERSON' && t.s >= s.start && t.e <= s.end);
+    const out = [];
+    let i = 0;
+    while (i < tokens.length) {
+      const t = tokens[i];
+      const ok = (x) => comps.has(x.norm) && (x.ar || x.cap) && !inside(x);
+      if (!ok(t)) { i++; continue; }
+      let j = i;
+      while (j + 1 < tokens.length && ok(tokens[j + 1]) && adjacent(text, tokens[j], tokens[j + 1])) j++;
+      out.push({ start: tokens[i].s, end: tokens[j].e, type: 'PERSON', source: 'repeat' });
+      i = j + 1;
+    }
+    return out;
+  }
+
   function detect(text, opts) {
     opts = opts || {};
     const N = normDigits(text);
@@ -411,9 +476,13 @@
     cuePersons(text, tokens, spans);
     gazetteerRuns(text, tokens, spans);
 
+    if (opts.strict) strictSpans(text, tokens, spans);
+
     for (const name of opts.extraNames || []) {
       for (const [s, e] of termMatches(text, tokens, name)) spans.push({ start: s, end: e, type: 'PERSON', source: 'user' });
     }
+    spans = mergePersons(spans);
+    spans = spans.concat(repeatedNames(text, tokens, spans));
     spans = mergePersons(spans);
 
     const manual = [];

@@ -79,7 +79,9 @@
    */
   function restore(answer, session) {
     const labels = Object.values(LABELS).join('|');
-    const re = new RegExp('\\[?\\s*\\b(' + labels + ')[_\\s-]?(\\d+)\\b\\s*\\]?', 'gi');
+    // [PERSON_1] or [person 1] with brackets, or PERSON_1 with the brackets lost.
+    // Plain prose such as "case 2" is not a placeholder.
+    const re = new RegExp('\\[\\s*(' + labels + ')[_\\s-]?(\\d+)\\s*\\]|(?<![\\w])(' + labels + ')_(\\d+)(?!\\w)', 'gi');
     const segments = [];
     const unknown = new Set();
     let restored = 0;
@@ -87,9 +89,7 @@
     let pos = 0;
     let m;
     while ((m = re.exec(answer))) {
-      // plain prose such as "case 2" is not a placeholder: need a bracket or underscore
-      if (!m[0].includes('[') && !m[0].includes('_')) continue;
-      const ph = '[' + m[1].toUpperCase() + '_' + m[2] + ']';
+      const ph = '[' + (m[1] || m[3]).toUpperCase() + '_' + (m[2] || m[4]) + ']';
       const value = session.byPlaceholder.get(ph);
       if (value === undefined) { unknown.add(ph); continue; }
       if (m.index > pos) {

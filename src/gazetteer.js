@@ -34,15 +34,15 @@
       Thierry Olivier Sébastien Julien Maxime Mathieu Antoine Guillaume Alexandre Thomas Vincent Bruno Gérard
       Claude Jacques André Louis François Henri Marcel Bernard Yves Dominique Frédéric Hugo Lucas Théo Gabriel
       Marie Nathalie Isabelle Sylvie Catherine Françoise Monique Christine Martine Nicole Sophie Valérie Brigitte
-      Anne Hélène Camille Chloé Léa Manon Emma Inès Sarah Julie Laure Céline Aurélie Véronique Jeanne Odette
-      Yvonne Simone Colette Josette Danielle Cécile Mathilde Élodie Océane Margaux Pauline Clémence Esther
-      Jean-Claude Jean-Pierre Jean-Paul Marie-Claire Anne-Marie Rachelle Aïcha Fatou Mamadou Ousmane Moussa
-      Ibrahima Aminata Awa Mariama Kadiatou Espérance Pascaline Fabrice Didier`.split(/\s+/),
+      Anne Hélène Camille Chloé Léa Manon Emma Inès Sarah Julie Laure Céline Aurélie Véronique Jeanne 
+       Simone Colette Josette Danielle Cécile Mathilde Élodie Océane Margaux Pauline Clémence Esther
+      Jean-Claude Jean-Pierre Jean-Paul Marie-Claire Anne-Marie  Aïcha Fatou Mamadou Ousmane Moussa
+      Ibrahima Aminata Awa Mariama Kadiatou  Pascaline Fabrice Didier`.split(/\s+/),
     family: `Martin Bernard Dubois Thomas Robert Richard Petit Durand Leroy Moreau Simon Laurent Lefebvre Michel
       Garcia David Bertrand Roux Vincent Fournier Morel Girard André Lefèvre Mercier Dupont Lambert Bonnet
       François Martinez Legrand Garnier Faure Rousseau Blanchard Guérin Muller Henry Roussel Nicolas Perrin
       Morin Mathieu Clément Gauthier Dumont Lopez Fontaine Chevalier Robin Masson Sanchez Gérard Nguyen Boyer
-      Traoré Diallo Camara Konaté Ouédraogo Sow Ndiaye Diop Kouassi Mukendi Kabila Tshisekedi`.split(/\s+/),
+      Traoré Diallo Camara Konaté Ouédraogo Sow Ndiaye Diop Kouassi   `.split(/\s+/),
   };
 
   const sw = {
@@ -53,7 +53,7 @@
       Achieng Atieno Akinyi Adhiambo Awuor Anyango Apiyo Wafula Wekesa Barasa Simiyu Naliaka Nekesa Nafula
       Kiprono Kipchoge Kiptoo Kibet Kipkemboi Cheruiyot Chebet Jepchirchir Jeptoo Chepkoech Kosgei Rotich
       Kiplagat Kimutai Korir Langat Ruto Tanui Mwalimu Wekhomba Peter Samuel James Joseph John Esther Ruth
-      Nasimiyu Nyokabi Wacera Wanjiku Waithera Waweru Mbugua Macharia Kamande Gathoni`.split(/\s+/),
+       Nyokabi Wacera Wanjiku Waithera Waweru Mbugua Macharia Kamande Gathoni`.split(/\s+/),
     family: `Mwangi Kamau Otieno Odhiambo Onyango Omondi Ochieng Njoroge Kariuki Kimani Maina Mutua Wafula
       Wekesa Barasa Kiprono Kipchoge Cheruiyot Korir Langat Rotich Tanui Mbugua Macharia Waweru Gitau Githinji
       Kilonzo Mutiso Musau Nzioka Mulwa Wambua Ndung'u Karanja Kinyanjui Mugo Kiarie Ngugi Nyaga Mwaura
@@ -86,49 +86,49 @@
       Sami Nabil Walid Waleed Karim Kareem Tarek Tariq Hadi Hani Hanan Hanane Rima Rania Layla Leila Laila Fatima
       Fatme Fatmeh Zeinab Zainab Zaynab Mariam Maryam Mona Nour Noura Nora Salma Sara Sarah Amal Hiba Dalal Dina
       Dima Rasha Ghada Huda Hoda Jamila Jamal Kamal Majed Maher Marwan Bilal Rami Ramzi Riad Rabih Elie Elias
-      Georges George Antoine Michel Charbel Tony Nadine Nada Lina Rola Carla Joumana Samira Souad Suad Wafaa
+      Georges George Antoine Michel Charbel Tony Nadine Nada Lina  Carla Joumana Samira Souad Suad Wafaa
       Hind Ayman Adnan Bassam Bassel Fadi Fares Firas Hamza Hamad Hamid Hussam Imad Iyad Jad Jihad Louay Malek
       Mazen Nizar Osama Radwan Raed Saeed Said Salim Salah Sana Sanaa Shadi Sultan Wael Yasmin Yasmine Zahra
       Zeina Zein Ola Reem Rim Hala Houda Mireille Rabab Siham Khadija Khadiga Aisha Aicha Asma Nawal Najwa
-      Manal Maya Mayssa Ziad Ziyad Zaher Anwar Hussam Ghassan Mohsen Nasser Nassim Naji Hisham Hicham Rashid
-      Rachid Rafic Rafik Raymond Ramez Pascal Boutros Elias Ilyas Issam Jawad Jaber Kassem Qassem Lara Lama
-      Joelle Rita Rana Mira Myriam Nayla Nisrine Randa Rouba Sawsan Sylvana Tala Yara Yasser Yaser Zakaria
+      Manal Maya Mayssa Ziad Ziyad Zaher Anwar Hussam  Mohsen Nasser Nassim Naji Hisham Hicham Rashid
+      Rachid Rafic Rafik Raymond Ramez Pascal  Elias Ilyas Issam Jawad Jaber Kassem Qassem  Lama
+      Joelle Rita Rana  Myriam  Nisrine Randa Rouba Sawsan Sylvana Tala Yara Yasser Yaser Zakaria
       Ziyad Abdel Abdul Bachir Bashir Basil Bahaa Chadi Cynthia Dani Edgar Elham Eman Iman Farah Fouad
       Ghaith Habib Hazem Hosni Jamil Lubna Mahdi Mazin Mona Mouna Muna Nabih Nadim Nadia Naeem Rayan Ranim
       Safaa Safa Sahar Salam Samia Sawsan Selim Sleiman Suleiman Taleb Tamer Tamara Wissam Wajdi Yahya Yehia
       Zouheir Zuhair Zouhair Maha Mahasen Marwa Rawan Roula Sally Samar Shireen Sirine Soha Souha Yomna`.split(/\s+/),
-    family: `Khoury Haddad Saab Nasser Nassar Hariri Mansour Sleiman Slaiman Hamdan Hamade Hammoud Hamdi Khalil Issa
+    family: `Khoury Haddad Saab Nasser Nassar Hariri Mansour Sleiman Slaiman Hamdan Hamade  Hamdi Khalil Issa
       Ghanem Rahme Aoun Geagea Frem Karam Chidiac Daher Daou Fakhoury Hakim Hajj Hijazi Jaber Kassem Kassab Kanaan
       Mouawad Moussa Mrad Najjar Nakhle Obeid Rizk Sabbagh Saliba Salameh Sayegh Shami Tannous Yazbeck Zein
       Zahran Masri Halabi Hourani Qassem Darwish Abboud Amin Ayoub Bakri Barakat Chehab Dagher Eid Fares Ghosn
       Harb Hayek Hobeika Jabbour Khatib Maalouf Matar Nahas Osman Rahal Sfeir Shehadeh Srour Taha Tawil Younes
-      Yassine Jundi Hamwi Homsi Hamoui Kurdi Turk Bitar Itani Itany Salam Sabra Tabet Boutros Ghazal Zaarour
-      Moawad Gemayel Chamoun Frangieh Joumblatt Arslan Sader Berri Mikati Salhab Tohme Tueni Daccache Abi Nader
+      Yassine Jundi Hamwi Homsi Hamoui Kurdi Turk Bitar   Salam    Ghazal Zaarour
+      Moawad Gemayel  Frangieh Joumblatt Arslan Sader Berri Mikati Salhab Tohme Tueni Daccache Abi Nader
       Khoder Hussein Ahmad Mohammad Ali Hassan Mahmoud Abdallah Ibrahim Youssef Omar Suleiman Said Salim Mourad
-      Naccache Nehme Semaan Sarkis Awad Bou Zakhour Beydoun Ramadan Shaaban Hammoud Fawaz Charafeddine Mcheik
+      Naccache Nehme Semaan  Awad Bou Zakhour Beydoun Ramadan Shaaban  Fawaz Charafeddine Mcheik
       Chaaban Zaidan Zeidan Kobeissi Merhi Mekdad Moukalled Nouri Noureddine Orfali Rifai Safadi Sidani`.split(/\s+/),
     // Arabic script. Family names are written without the leading definite article.
     givenAr: `أحمد محمد محمود حسن حسين علي عمر خالد يوسف إبراهيم ابراهيم إسماعيل اسماعيل مصطفى عبدالله عبدالرحمن
       عبدالقادر عبدالعزيز عبدالناصر سمير سامر سامي نبيل وليد كريم طارق هادي هاني حنان ريما رانيا ليلى فاطمة
       زينب مريم منى نور نورا سلمى سارة أمل هبة دلال دينا ديما رشا غادة هدى جميلة جمال كمال ماجد ماهر مروان
-      بلال رامي رمزي رياض ربيع إيلي الياس إلياس جورج جوزيف أنطوان ميشال شربل نادين ندى لينا رولا كارلا جمانة
+      بلال رامي رمزي رياض ربيع إيلي الياس إلياس جورج جوزيف أنطوان ميشال شربل نادين ندى لينا  كارلا جمانة
       سميرة سعاد وفاء هند أيمن عدنان بسام باسل فادي فارس فراس حمزة حمد حامد حسام عماد إياد جهاد لؤي مالك مازن
-      نزار أسامة رائد سعيد سالم صلاح سناء سناء شادي سلطان وائل ياسمين زهراء زينة ريم هلا هالة خديجة عائشة
-      أسماء نوال نجوى منال مايا ميساء زياد زاهر أنور غسان محسن ناصر نسيم ناجي هشام راشد رفيق رفيق ريمون رامز
-      باسكال بطرس عصام جواد جابر قاسم لارا لمى جويل ريتا رنا ميرا ميريام نايلة نسرين راندا ربى سوسن سيلفانا
+      نزار أسامة رائد سعيد سالم مالك صلاح سناء سناء شادي سلطان وائل ياسمين زهراء زينة ريم هلا هالة خديجة عائشة
+      أسماء نوال نجوى منال مايا ميساء زياد زاهر أنور  محسن ناصر نسيم ناجي هشام راشد رفيق رفيق ريمون رامز
+      باسكال  عصام جواد جابر قاسم  لمى جويل ريتا رنا  ميريام  نسرين راندا ربى سوسن سيلفانا
       تالا يارا ياسر زكريا بشير بهاء شادي سيندي إدغار ايمان إيمان فرح فؤاد غيث حبيب حازم جميل لبنى مهدي
       نبيه نديم نادية نعيم ريان صفاء سحر سلام سامية سليم سليمان طالب تامر تمارا وسام يحيى زهير ماهر مها
       مروة روان روزا سالي سمر شيرين سيرين سهى سها يمنى مريم`.split(/\s+/),
-    familyAr: `خوري حداد صعب ناصر نصار حريري منصور سليمان حمدان حمادة همود خليل عيسى غانم رحمة عون جعجع فرم كرم
+    familyAr: `خوري حداد صعب ناصر نصار حريري منصور سليمان حمدان حمادة  خليل عيسى غانم رحمة عون جعجع فرم كرم
       شيدياق ضاهر داود فاخوري حكيم حاج حجازي جابر قاسم كساب كنعان معوض موسى مراد نجار ناكوزي عبيد رزق
       صباغ صليبا سلامة صايغ شامي طنوس يزبك زين زهران مصري حلبي حوراني درويش عبود أمين ايوب أيوب بكري
       بركات شهاب دغر عيد فارس غصن حرب حايك هبيقة جبور خطيب معلوف مطر نحاس عثمان رحال صفير شحادة سرور
-      طه طويل يونس ياسين جندي حموي حمصي كردي تركي بيطار إيتاني ايتاني سلام صبرا طابت غزال زعرور جميل
+      طه طويل يونس ياسين جندي حموي حمصي كردي تركي بيطار   سلام   غزال زعرور جميل
       شمعون فرنجية جنبلاط أرسلان صدر بري ميقاتي صلحب طعمة تويني دكاش خضر حسين احمد أحمد محمد علي حسن محمود
-      عبدالله ابراهيم إبراهيم يوسف عمر سعيد سالم مراد نقاش نعمة سمعان سركيس عواد ابو زخور بيضون رمضان
+      عبدالله ابراهيم إبراهيم يوسف عمر سعيد سالم مالك مراد نقاش نعمة سمعان سركيس عواد ابو زخور بيضون رمضان
       شعبان فواز شرف الدين مشيك زيدان قبيسي مرعي مقداد مقدّد نوري رفاعي صافدي صيداني`.split(/\s+/),
     // Words that are also common words: only count in a run of 2+ or after a cue.
-    ambiguousAr: `نور أمل هدى سعيد ندى حسن كريم جميلة سلمى سعاد وفاء هند سناء رشا نبيل منى مها سلام جميل كمال
+    ambiguousAr: `مالك نور أمل هدى سعيد ندى حسن كريم جميلة سلمى سعاد وفاء هند سناء رشا نبيل منى مها سلام جميل كمال
       جمال مصري حلبي نجار خطيب حكيم حاج عيد فارس زين صدر طويل ياسين حرب فرح ريان رحمة شامي تركي كردي أمين
       امين عون سرور شرف مراد علي نعمة طعمة حمد سالم`.split(/\s+/),
     ambiguousLat: ['said', 'amal', 'nour', 'hind', 'amin', 'faith', 'hope'],
@@ -149,7 +149,7 @@
     Mme M Mlle Madame Monsieur Email Phone Tel Tél Mobile Courriel Mail Registration Registre Dossier Numéro
     Number ID Passport Passeport DOB Contact Call Visit Visite Notes Note Summary Résumé Rapport Report
     Interview Entretien Appel Meeting Reunión Follow Follow-up Referred Orienté Hotline Helpdesk Mount Beit Bourj
-    Jabal Wadi Nahr`.split(/\s+/);
+    Jabal Wadi Nahr Dhabi`.split(/\s+/);
 
   const stopAr = `في من إلى الى على عن مع قال قالت أفاد أفادت اتصل اتصلت حضر حضرت زار زارت طلب طلبت أبلغ ابلغ أبلغت ذكر ذكرت
     يقيم تقيم يعمل تعمل وصل وصلت أخبر اخبر أخبرت بخصوص حول هو هي هذا هذه ذلك التي الذي لا لم لن قد كان كانت

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="color-scheme" content="light dark">
+<title>Paste Guard</title>
+<meta name="description" content="Strips names, phone numbers and ID numbers out of case notes in your browser before you paste them into an AI assistant, and puts them back in the answer.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23245c58'/%3E%3Cpath d='M16 6l8 3v6c0 5-3.4 8.6-8 11-4.6-2.4-8-6-8-11V9z' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M12.5 16l2.5 2.5 5-5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8"/><path d="M16 6l8 3v6c0 5-3.4 8.6-8 11-4.6-2.4-8-6-8-11V9z"/><path d="M12.5 16l2.5 2.5 5-5"/></svg>
+      <div>
+        <h1>Paste Guard</h1>
+        <p class="tag">Take the personal details out of a case note before you paste it into an AI assistant. Put them back in the answer.</p>
+      </div>
+    </div>
+    <p class="pill" id="privacy-pill" title="The page carries a Content-Security-Policy with connect-src 'none'. The browser refuses any network request from it.">
+      <span class="dot" aria-hidden="true"></span> Runs in this tab. Nothing is sent or saved.
+    </p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="warn" role="note" aria-labelledby="warn-h">
+    <h2 id="warn-h">Read the redacted text before you paste it</h2>
+    <p>This tool finds phone numbers, emails, IBANs, ID and case numbers reliably. <strong>Names are harder.</strong>
+    It recognises a name after a title or a cue such as <em>Mr, Mme, السيد, son of</em>, or when it is in a built-in list of common names. A name with no cue that is not in the list can slip through. Check every name yourself, and select anything it missed.</p>
+  </section>
+
+  <div class="grid">
+
+    <section class="card" aria-labelledby="h-in">
+      <div class="card-head">
+        <h2 id="h-in"><span class="n">1</span> Your note</h2>
+        <div class="btns" role="group" aria-label="Load a sample note">
+          <button type="button" class="btn ghost" id="s-en">Sample English</button>
+          <button type="button" class="btn ghost" id="s-fr">Exemple français</button>
+          <button type="button" class="btn ghost" id="s-ar" lang="ar" dir="rtl">مثال عربي</button>
+        </div>
+      </div>
+      <label class="sr" for="src">Original note</label>
+      <textarea id="src" dir="auto" spellcheck="false" placeholder="Paste or type a case note here. It stays in this tab."></textarea>
+      <div class="row">
+        <div class="selrow">
+          <label class="sr" for="seltype">Type to use for the selection</label>
+          <select id="seltype">
+            <option value="PERSON">Person</option>
+            <option value="PHONE">Phone</option>
+            <option value="ID">ID number</option>
+            <option value="CASE">Case number</option>
+            <option value="EMAIL">Email</option>
+            <option value="DOB">Date of birth</option>
+            <option value="IBAN">IBAN</option>
+            <option value="OTHER">Other</option>
+          </select>
+          <button type="button" class="btn" id="redact-sel" disabled>Redact selected text</button>
+        </div>
+        <button type="button" class="btn ghost" id="clear">Clear</button>
+      </div>
+      <p class="hint" id="sel-hint">Select any text in the note or in the redacted view, then press the button. Every copy of it is redacted.</p>
+      <ul class="manual" id="manual" aria-label="Your own redactions"></ul>
+    </section>
+
+    <section class="card" aria-labelledby="h-out">
+      <div class="card-head">
+        <h2 id="h-out"><span class="n">2</span> Redacted, to paste</h2>
+        <button type="button" class="btn primary" id="copy-red">Copy redacted text</button>
+      </div>
+      <div class="counts" id="counts" aria-live="polite"></div>
+      <div class="pane" id="out" tabindex="0" aria-label="Redacted text" aria-live="polite"></div>
+      <p class="hint">Coloured spans were replaced. Click one to put the original back; click it again to redact it. The same value always gets the same placeholder.</p>
+      <details class="opts">
+        <summary>Options</summary>
+        <label class="check"><input type="checkbox" id="strict"> Strict mode: also redact every Capitalised word that does not start a sentence. Catches more names, and more places and organisations. No effect on Arabic, which has no capital letters.</label>
+        <label class="lbl" for="extra">Extra names to always redact (one per line, any script)</label>
+        <textarea id="extra" dir="auto" rows="3" spellcheck="false" placeholder="Hrant&#10;Gaelle&#10;تيماء"></textarea>
+        <div class="row">
+          <p class="hint" id="session-info"></p>
+          <button type="button" class="btn ghost" id="reset">New session</button>
+        </div>
+      </details>
+    </section>
+
+  </div>
+
+  <section class="card wide" aria-labelledby="h-rest">
+    <div class="card-head">
+      <h2 id="h-rest"><span class="n">3</span> Put the real values back</h2>
+      <div class="btns">
+        <button type="button" class="btn ghost" id="example-answer">Fill an example answer</button>
+        <button type="button" class="btn primary" id="copy-rest">Copy restored text</button>
+      </div>
+    </div>
+    <p class="hint top-hint">Paste the assistant's answer. Placeholders such as <code>[PERSON_1]</code> are swapped back using the mapping held in this tab. If you reload the page the mapping is gone, by design.</p>
+    <div class="grid inner">
+      <div>
+        <label class="lbl" for="ans">Assistant's answer</label>
+        <textarea id="ans" dir="auto" spellcheck="false" placeholder="Paste the answer here."></textarea>
+      </div>
+      <div>
+        <span class="lbl" id="rest-lbl">Restored</span>
+        <div class="pane" id="rest" tabindex="0" aria-labelledby="rest-lbl" aria-live="polite"></div>
+        <p class="hint" id="rest-info"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card wide plain" aria-labelledby="h-how">
+    <h2 id="h-how">How the privacy claim is enforced</h2>
+    <ul class="facts">
+      <li>The page has a Content-Security-Policy with <code>connect-src 'none'</code>, so the browser refuses any network request from it.</li>
+      <li>The mapping from placeholders to real values is a plain object in this tab's memory. It is never written to browser storage or sent anywhere, and it is gone when you close or reload the page.</li>
+      <li>A test fails the build if the code mentions fetch, XMLHttpRequest, WebSocket, sendBeacon, local storage or cookies.</li>
+      <li>There is no name-recognition model. Names are found by cues and a bundled list, so some will be missed. That is why step 2 asks you to read the result.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>Paste Guard is a portfolio project with synthetic sample data. It reduces risk; it does not make a note safe to share.</p>
+</footer>
+
+<script src="src/gazetteer.js"></script>
+<script src="src/detect.js"></script>
+<script src="src/redact.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>

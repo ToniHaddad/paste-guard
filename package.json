@@ -1,0 +1,13 @@
+{
+  "name": "paste-guard",
+  "version": "0.1.0",
+  "description": "Strips names, phone numbers and ID numbers out of case notes in the browser before they are pasted into an AI assistant, and puts them back in the answer.",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "bench": "node bench/run.js --misses"
+  }
+}

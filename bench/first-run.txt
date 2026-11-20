@@ -1,0 +1,88 @@
+notes: 45 (en 15, fr 15, ar 15), labelled entities: 171
+
+RECALL AND PRECISION, ALL NOTES, BY ENTITY TYPE
+group           gold  found  recall  preds correct precision
+PERSON            90     66   73.3%     72      71   98.6%
+PHONE             27     27  100.0%     27      27  100.0%
+EMAIL              9      9  100.0%      9       9  100.0%
+IBAN               3      3  100.0%      3       3  100.0%
+DOB               12     11   91.7%     11      11  100.0%
+ID                14     12   85.7%     12      12  100.0%
+CASE              16     16  100.0%     16      16  100.0%
+ALL              171    144   84.2%    150     149   99.3%
+
+BY LANGUAGE
+group           gold  found  recall  preds correct precision
+en                58     50   86.2%     50      50  100.0%
+fr                60     52   86.7%     52      52  100.0%
+ar                53     42   79.2%     48      47   97.9%
+
+BY SPLIT (dev = used while building, heldout = never looked at while tuning)
+group           gold  found  recall  preds correct precision
+dev              111     95   85.6%     98      97   99.0%
+heldout           60     49   81.7%     52      52  100.0%
+
+BY LANGUAGE AND TYPE
+group           gold  found  recall  preds correct precision
+en PERSON         28     23   82.1%     23      23  100.0%
+en PHONE          10     10  100.0%     10      10  100.0%
+en EMAIL           3      3  100.0%      3       3  100.0%
+en IBAN            1      1  100.0%      1       1  100.0%
+en DOB             4      3   75.0%      3       3  100.0%
+en ID              6      4   66.7%      4       4  100.0%
+en CASE            6      6  100.0%      6       6  100.0%
+fr PERSON         33     25   75.8%     25      25  100.0%
+fr PHONE           9      9  100.0%      9       9  100.0%
+fr EMAIL           4      4  100.0%      4       4  100.0%
+fr IBAN            1      1  100.0%      1       1  100.0%
+fr DOB             4      4  100.0%      4       4  100.0%
+fr ID              4      4  100.0%      4       4  100.0%
+fr CASE            5      5  100.0%      5       5  100.0%
+ar PERSON         29     18   62.1%     24      23   95.8%
+ar PHONE           8      8  100.0%      8       8  100.0%
+ar EMAIL           2      2  100.0%      2       2  100.0%
+ar IBAN            1      1  100.0%      1       1  100.0%
+ar DOB             4      4  100.0%      4       4  100.0%
+ar ID              4      4  100.0%      4       4  100.0%
+ar CASE            5      5  100.0%      5       5  100.0%
+
+PERSON ONLY, BY LANGUAGE AND SPLIT
+group           gold  found  recall  preds correct precision
+en dev            17     15   88.2%     15      15  100.0%
+en heldout        11      8   72.7%      8       8  100.0%
+fr dev            21     15   71.4%     15      15  100.0%
+fr heldout        12     10   83.3%     10      10  100.0%
+ar dev            19     12   63.2%     15      14   93.3%
+ar heldout        10      6   60.0%      9       9  100.0%
+
+MISSED (leaks):
+  en-04 [dev] PERSON: Duván
+  en-08 [dev] PERSON: Nayla
+  en-08 [dev] ID: 123-24C01234
+  en-12 [heldout] ID: 1.098.765.432
+  en-12 [heldout] PERSON: Wilmer
+  en-13 [heldout] PERSON: Khaled
+  en-14 [heldout] DOB: 3 June 1999
+  en-15 [heldout] PERSON: Lara
+  fr-02 [dev] PERSON: Nawfal
+  fr-05 [dev] PERSON: Taline
+  fr-07 [dev] PERSON: Rola
+  fr-07 [dev] PERSON: Rola
+  fr-08 [dev] PERSON: Salwa Tabet
+  fr-09 [dev] PERSON: Espérance
+  fr-12 [heldout] PERSON: Zakia
+  fr-15 [heldout] PERSON: Hrayr
+  ar-04 [dev] PERSON: ندى
+  ar-06 [dev] PERSON: رولا
+  ar-06 [dev] PERSON: رولا
+  ar-07 [dev] PERSON: طارق همود
+  ar-07 [dev] PERSON: ميرا
+  ar-09 [dev] PERSON: عبد الرحمن سلوم
+  ar-10 [dev] PERSON: هدى
+  ar-13 [heldout] PERSON: إيفون جرجس
+  ar-14 [heldout] PERSON: غسان عويدة
+  ar-15 [heldout] PERSON: سعاد
+  ar-15 [heldout] PERSON: أم جميل
+
+FALSE POSITIVES (wrong span or type):
+  ar-04 [dev] PERSON: مالك  (gazetteer)
