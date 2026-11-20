@@ -128,6 +128,7 @@
       const type = seg.placeholder.replace(/^\[|_\d+\]$/g, '').replace('REDACTED', 'OTHER');
       const s = el('span', 'tok t-' + type + ' restored', text);
       s.title = seg.placeholder + ' restored';
+      s.dir = 'auto';
       return s;
     });
     if (!ans.value) { rest.textContent = ''; rest.appendChild(el('p', 'empty', 'The restored answer appears here.')); }
