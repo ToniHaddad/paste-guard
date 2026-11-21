@@ -1,95 +1,104 @@
-notes: 60 (en 20, fr 20, ar 20), labelled entities: 229
+notes: 60 (en 20, fr 20, ar 20), labelled entities: 249
 
 RECALL AND PRECISION, ALL NOTES, BY ENTITY TYPE
 group           gold  found  recall  preds correct precision
-PERSON           128    110   85.9%    113     112   99.1%
-PHONE             36     36  100.0%     36      36  100.0%
-EMAIL             11     11  100.0%     11      11  100.0%
-IBAN               4      4  100.0%      4       4  100.0%
-DOB               15     15  100.0%     15      15  100.0%
-ID                16     16  100.0%     16      16  100.0%
-CASE              19     19  100.0%     19      19  100.0%
-ALL              229    211   92.1%    214     213   99.5%
+PERSON           150    132   88.0%    134     132   98.5%
+PHONE             43     43  100.0%     43      43  100.0%
+EMAIL              3      3  100.0%      3       3  100.0%
+IBAN              12     12  100.0%     12      12  100.0%
+DOB                9      9  100.0%      9       9  100.0%
+ID                11      9   81.8%      9       9  100.0%
+CASE              21     21  100.0%     21      21  100.0%
+ALL              249    229   92.0%    231     229   99.1%
 
 BY LANGUAGE
 group           gold  found  recall  preds correct precision
-en                82     76   92.7%     77      76   98.7%
-fr                77     72   93.5%     72      72  100.0%
-ar                70     63   90.0%     65      65  100.0%
+en                85     83   97.6%     84      83   98.8%
+fr                80     76   95.0%     76      76  100.0%
+ar                84     70   83.3%     71      70   98.6%
 
 BY SPLIT (dev = tuned on; heldout = scored before tuning, a few generic fixes after; stress = written after tuning, never tuned on)
 group           gold  found  recall  preds correct precision
-dev              111    110   99.1%    110     110  100.0%
-heldout           60     58   96.7%     59      58   98.3%
-stress            58     43   74.1%     45      45  100.0%
+dev              111    111  100.0%    110     110  100.0%
+heldout           54     50   92.6%     51      51  100.0%
+stress            84     68   81.0%     70      68   97.1%
 
 BY LANGUAGE AND TYPE
 group           gold  found  recall  preds correct precision
-en PERSON         45     39   86.7%     40      39   97.5%
-en PHONE          13     13  100.0%     13      13  100.0%
-en EMAIL           4      4  100.0%      4       4  100.0%
-en IBAN            1      1  100.0%      1       1  100.0%
-en DOB             5      5  100.0%      5       5  100.0%
-en ID              7      7  100.0%      7       7  100.0%
+en PERSON         51     49   96.1%     50      49   98.0%
+en PHONE          15     15  100.0%     15      15  100.0%
+en EMAIL           1      1  100.0%      1       1  100.0%
+en IBAN            4      4  100.0%      4       4  100.0%
+en DOB             3      3  100.0%      3       3  100.0%
+en ID              4      4  100.0%      4       4  100.0%
 en CASE            7      7  100.0%      7       7  100.0%
-fr PERSON         44     39   88.6%     39      39  100.0%
-fr PHONE          12     12  100.0%     12      12  100.0%
-fr EMAIL           4      4  100.0%      4       4  100.0%
-fr IBAN            2      2  100.0%      2       2  100.0%
-fr DOB             5      5  100.0%      5       5  100.0%
-fr ID              4      4  100.0%      4       4  100.0%
-fr CASE            6      6  100.0%      6       6  100.0%
-ar PERSON         39     32   82.1%     34      34  100.0%
-ar PHONE          11     11  100.0%     11      11  100.0%
-ar EMAIL           3      3  100.0%      3       3  100.0%
-ar IBAN            1      1  100.0%      1       1  100.0%
-ar DOB             5      5  100.0%      5       5  100.0%
-ar ID              5      5  100.0%      5       5  100.0%
-ar CASE            6      6  100.0%      6       6  100.0%
+fr PERSON         49     46   93.9%     46      46  100.0%
+fr PHONE          13     13  100.0%     13      13  100.0%
+fr EMAIL           1      1  100.0%      1       1  100.0%
+fr IBAN            4      4  100.0%      4       4  100.0%
+fr DOB             3      3  100.0%      3       3  100.0%
+fr ID              3      2   66.7%      2       2  100.0%
+fr CASE            7      7  100.0%      7       7  100.0%
+ar PERSON         50     37   74.0%     38      37   97.4%
+ar PHONE          15     15  100.0%     15      15  100.0%
+ar EMAIL           1      1  100.0%      1       1  100.0%
+ar IBAN            4      4  100.0%      4       4  100.0%
+ar DOB             3      3  100.0%      3       3  100.0%
+ar ID              4      3   75.0%      3       3  100.0%
+ar CASE            7      7  100.0%      7       7  100.0%
 
 PERSON ONLY, BY LANGUAGE AND SPLIT
 group           gold  found  recall  preds correct precision
-en dev            17     17  100.0%     17      17  100.0%
-en heldout        11     10   90.9%     11      10   90.9%
-en stress         17     12   70.6%     12      12  100.0%
-fr dev            21     20   95.2%     20      20  100.0%
-fr heldout        12     11   91.7%     11      11  100.0%
-fr stress         11      8   72.7%      8       8  100.0%
-ar dev            19     19  100.0%     19      19  100.0%
-ar heldout        10     10  100.0%     10      10  100.0%
-ar stress         10      3   30.0%      5       5  100.0%
+en dev            20     20  100.0%     20      20  100.0%
+en heldout        10     10  100.0%     10      10  100.0%
+en stress         21     19   90.5%     20      19   95.0%
+fr dev            22     22  100.0%     22      22  100.0%
+fr heldout        10     10  100.0%     10      10  100.0%
+fr stress         17     14   82.4%     14      14  100.0%
+ar dev            19     19  100.0%     18      18  100.0%
+ar heldout        10      7   70.0%      8       8  100.0%
+ar stress         21     11   52.4%     12      11   91.7%
 
 STRICT MODE (also redact every capitalised word that does not start a sentence), ALL TYPES, BY LANGUAGE
 group           gold  found  recall  preds correct precision
-en                82     81   98.8%     85      81   95.3%
-fr                77     76   98.7%     79      76   96.2%
-ar                70     63   90.0%     65      65  100.0%
+en                85     85  100.0%     86      85   98.8%
+fr                80     78   97.5%     78      78  100.0%
+ar                84     70   83.3%     71      70   98.6%
 
 STRICT MODE, PERSON ONLY, STRESS SPLIT
 group           gold  found  recall  preds correct precision
-en stress         17     16   94.1%     18      16   88.9%
-fr stress         11     10   90.9%     12      10   83.3%
-ar stress         10      3   30.0%      5       5  100.0%
+en stress         21     21  100.0%     22      21   95.5%
+fr stress         17     16   94.1%     16      16  100.0%
+ar stress         21     11   52.4%     12      11   91.7%
+
+NAME LIST SWITCHED OFF (cues, repeat finding and patterns only), PERSON ONLY, BY SPLIT
+group           gold  found  recall  preds correct precision
+dev               61     45   73.8%     44      44  100.0%
+heldout           30     19   63.3%     19      19  100.0%
+stress            59     20   33.9%     22      21   95.5%
 
 MISSED (leaks):
-  en-12 [heldout] PERSON: Wilmer
-  en-16 [stress] PERSON: Ibtisam
-  en-16 [stress] PERSON: Gaelle
-  en-16 [stress] PERSON: Ibtisam
-  en-17 [stress] PERSON: Mercy Kerubo
-  en-19 [stress] PERSON: Afif Daoud
-  fr-02 [dev] PERSON: Nawfal
-  fr-15 [heldout] PERSON: Hrayr
-  fr-16 [stress] PERSON: Hagop
-  fr-17 [stress] PERSON: Wassim
-  fr-20 [stress] PERSON: Bertille
-  ar-16 [stress] PERSON: تيماء
-  ar-17 [stress] PERSON: عماد الدين شرارة
-  ar-17 [stress] PERSON: نبيل
-  ar-18 [stress] PERSON: أم كنان
-  ar-19 [stress] PERSON: نجلاء قصّار
-  ar-20 [stress] PERSON: إيناس
-  ar-20 [stress] PERSON: غابي الأشقر
+  en-16 [stress] PERSON: Tamar Kasparian
+  en-19 [stress] PERSON: Charbel
+  fr-14 [heldout] ID: 123456789012
+  fr-18 [stress] PERSON: Taline
+  fr-18 [stress] PERSON: Bertille
+  fr-19 [stress] PERSON: Charbel
+  ar-13 [heldout] PERSON: زين
+  ar-13 [heldout] PERSON: ماري
+  ar-14 [heldout] PERSON: إيفون جرجس
+  ar-16 [stress] PERSON: تمار قصباريان
+  ar-17 [stress] PERSON: نوفل
+  ar-18 [stress] PERSON: زخيا
+  ar-18 [stress] PERSON: طوني
+  ar-18 [stress] PERSON: منى
+  ar-19 [stress] PERSON: شربل
+  ar-19 [stress] PERSON: عفيف داود
+  ar-19 [stress] PERSON: هالة
+  ar-19 [stress] PERSON: نصري
+  ar-20 [stress] ID: ٤٤٥٥٦٦٧٧٨٨
+  ar-20 [stress] PERSON: نقولا
 
 FALSE POSITIVES (wrong span or type):
-  en-15 [heldout] PERSON: Sarkissian  (repeat)
+  en-16 [stress] PERSON: Hammoud  (gazetteer)
+  ar-19 [stress] PERSON: خال  (cue)

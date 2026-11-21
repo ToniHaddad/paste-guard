@@ -203,7 +203,9 @@
   function arCapture(text, tokens, idx, needHit, extra) {
     const t0 = tokens[idx];
     if (!t0 || !t0.ar || t0.norm.length < 2 || isStopAr(t0)) return null;
-    const hit = t0.kind === 'name' || t0.kind === 'amb';
+    const nx = tokens[idx + 1];
+    const hit = t0.kind === 'name' || t0.kind === 'amb' ||
+      (t0.kind === 'conn' && nx && (nx.kind === 'name' || nx.kind === 'amb') && adjacent(text, t0, nx));
     if (needHit && !hit) return null;
     if (!hit && (t0.norm.startsWith('ال') || verbLike(t0))) return null; // "the director", a verb
     let b = idx, count = 1;
@@ -231,7 +233,7 @@
   const LAT_LABEL = '(?<![\\p{L}])(?:name|nom|beneficiary|b\u00E9n\u00E9ficiaire|client|patient|head of household|chef de m\u00E9nage|chef de famille|complainant|plaignante?|applicant|demandeur|demandeuse|caller|appelant|appelante|interviewee|informant|contact person|focal point|caseworker|case worker|landlord|tenant|owner|propri\u00E9taire|locataire|officer|supervisor|interpreter|interpr\u00E8te|reporter|guardian|tuteur|mother|father|m\u00E8re|p\u00E8re)\\s*[:\uFF1A]\\s*';
 
   const AR_P = '[\u0648\u0628\u0644\u0641\u0643]?';
-  const AR_TITLES = `(?<![\\p{L}])${AR_P}(?:السيدة|السيد|الآنسة|الانسة|الأستاذة|الأستاذ|الاستاذة|الاستاذ|الدكتورة|الدكتور|الشيخة|الشيخ|الحاجة|الحاج|المدعو|المدعوة|المواطنة|المواطن|عائلة|المعلم|المعلمة|أبونا|الخوري|الأب)(?![\\p{L}])`;
+  const AR_TITLES = `(?<![\\p{L}])${AR_P}(?:السيدة|السيد|الآنسة|الانسة|الأستاذة|الأستاذ|الاستاذة|الاستاذ|الدكتورة|الدكتور|الشيخة|الشيخ|الحاجة|الحاج|المدعو|المدعوة|المواطنة|المواطن|المعلم|المعلمة|أبونا|الخوري|الأب)(?![\\p{L}])`;
   const AR_REL = `(?<![\\p{L}])${AR_P}(?:ابنته|ابنتها|بنته|بنتها|زوجته|زوجتها|والدته|والدتها|أخته|اخته|أختها|اختها|شقيقته|شقيقتها|جارته|جارتها|ابنه|ابنها|زوجها|والده|والدها|أخوه|اخوه|أخوها|اخوها|أخيه|أخيها|جاره|جارها|ابنة|ابن|بنت|زوجة|زوج|والدة|والد|أخت|اخت|أخ|اخ|شقيقة|شقيق|جارة|جار|الجارة|الجار|الأرملة|الارملة)(?![\\p{L}])`;
   const AR_ROLE = `(?<![\\p{L}])${AR_P}(?:المريضة|المريض|المستفيدة|المستفيد|المتصلة|المتصل|الشاكية|الشاكي|السائق|المالك|المالكة|المستأجر|المستأجرة|الطبيب|الطبيبة|الممرضة|الحارس)(?![\\p{L}])`;
   const AR_KUNYA = '(?<![\\p{L}])(?:\u0623\u0628\u0648|\u0627\u0628\u0648|\u0623\u0645|\u0627\u0645)(?![\\p{L}])';
@@ -267,6 +269,7 @@
     run(AR_ROLE, true, false, true, 'gu', true);
     run(AR_REL, true, false, true);
     run(AR_KUNYA, true, true, true, 'gu', false, true);
+    run('(?<![\\p{L}])عائلة(?![\\p{L}])', true, true, true); // "the X family": only when X is a known name
     run(AR_LABEL, true, false, false);
   }
 

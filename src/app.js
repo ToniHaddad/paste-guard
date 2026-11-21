@@ -34,9 +34,9 @@
   // ---------- samples ----------
 
   const SAMPLES = {
-    en: 'Case note, 18 March. Mrs Hanan Saab (NBR-LB-2025-004817) called about the delayed cash assistance. Her husband, Elias, lost his job in January and the family now lives with her mother in Tripoli. She can be reached on +961 71 123 456 or hanan.saab@example.org. Date of birth: 02/08/1982. Passport RL4567812. IBAN for the transfer: LB62 0999 0000 0001 0019 0122 9114.\n\nPlease pass this on to Gaelle in the protection team, and rewrite it as a short, polite summary for the area manager.',
-    fr: "Note de dossier, 18 mars. Madame Hanane Khoury (NBR-LB-2025-005541), née le 04/09/1980, a appelé au sujet du report de loyer. Son mari, Georges, est sans emploi depuis janvier. Elle est joignable au 03 765 432 ou à hanane.khoury@example.org. Carte d'identité n° 034567891234.\n\nMerci de rédiger un résumé poli pour la responsable de zone.",
-    ar: 'ملاحظة ملف، ١٨ آذار. اتصلت السيدة حنان صعب (NBR-LB-2025-004817) بخصوص تأخر المساعدة النقدية. زوجها إلياس فقد عمله في كانون الثاني وتعيش العائلة مع والدتها في طرابلس. يمكن الوصول إليها على الرقم ٠٣ ١٢٣ ٤٥٦ أو البريد hanan.saab@example.org. تاريخ الميلاد: ٠٢/٠٨/١٩٨٢. رقم جواز السفر RL4567812.\n\nيرجى كتابة ملخص مهذب لمدير المنطقة.',
+    en: 'Case note, Saida centre, 18 March. Mrs Hanan Saab (file CS-2026-004817) came with her mother about the rent. Her husband, Elias, lost his job in January and the family has paid rent from savings since then. She can be reached on +961 71 123 456 or hanan.saab@example.org. Date of birth: 02/08/1982. Passport RL4567812. The landlord, Mr Antoine Frem, asked for payment to IBAN LB30 0999 0000 0001 0045 2210 7731.\n\nPlease pass this on to Gaelle in the Social team, and rewrite it as a short, polite summary for the area manager.',
+    fr: "Appel à la ligne d\u2019assistance HL-2026-000312. Monsieur Jean-Claude Nasr, de Jbeil, se plaint que le bon alimentaire promis à son foyer n\u2019est pas arrivé depuis six semaines. Il dit que son épouse, Nada, n\u2019a pas été enregistrée. À rappeler au 03 456 789 ou à jc.nasr@example.org. Carte d\u2019identité n° 034567891234.\n\nMerci de rédiger un résumé poli pour la responsable de zone.",
+    ar: 'ملاحظة الملجأ، مدرسة زحلة، ليلة ١٤ تشرين الأول. ٣٨ عائلة مسجلة. السيد جورج حداد (ملف FAM-2026-01234) رب أسرة من ٦ أشخاص ويحتاج إلى فرشتين وحليب أطفال لابنته رنا، من مواليد ٠٢/٠٨/٢٠٢٤. رقم الهوية ٠٠٠١٢٣٤٥٦٧٨٩. حارس المدرسة أبو إلياس سيفتح المستودع الساعة السابعة. رقم المناوب ٠٣ ١٢٣ ٤٥٦ والبريد zahle.shelter@example.org.\n\nيرجى كتابة تقرير موجز ومهذب لمدير العمليات.',
   };
 
   // ---------- rendering ----------
@@ -211,8 +211,8 @@
     const find = (label) => [...session.byPlaceholder.keys()].find((k) => k.startsWith('[' + label + '_'));
     const p = find('PERSON'), t = find('PHONE'), c = find('CASE');
     ans.value = 'Summary for the area manager:\n' +
-      (p ? p + ' ' : 'The beneficiary ') + (c ? '(file ' + c + ') ' : '') + 'asked about delayed cash assistance after the household lost its income in January.' +
-      (t ? ' Please call ' + p + ' back on ' + t + '.' : '') + '\nSuggested next step: check the payment status and confirm a date.';
+      (p ? p + ' ' : 'The beneficiary ') + (c ? '(file ' + c + ') ' : '') + 'is registered with the Organization and has asked for support. The request looks urgent.' +
+      (t ? ' Please call ' + p + ' back on ' + t + '.' : '') + '\nSuggested next step: confirm the request with the centre and agree a delivery date.';
     renderRestore();
   });
 
