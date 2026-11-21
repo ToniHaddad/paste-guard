@@ -73,7 +73,7 @@ function report(showMisses) {
   out.push('');
   out.push(table('BY LANGUAGE', summarise(rows, (r) => r.note.lang), ['en', 'fr', 'ar']));
   out.push('');
-  out.push(table('BY SPLIT (dev = tuned on; heldout = scored before tuning, a few generic fixes after; stress = written after tuning, never tuned on)', summarise(rows, (r) => r.note.split), ['dev', 'heldout', 'stress']));
+  out.push(table('BY SPLIT (dev = tuned on; heldout and stress = written before the detector was changed, not tuned on)', summarise(rows, (r) => r.note.split), ['dev', 'heldout', 'stress']));
   out.push('');
   const byLangType = summarise(rows, (r) => r.note.lang + ' ' + r.e.type);
   out.push(table('BY LANGUAGE AND TYPE', byLangType,
