@@ -2,6 +2,8 @@
 
 Strips names, phone numbers and ID numbers out of case notes in the browser before they are pasted into an AI assistant, and puts them back in the answer.
 
+**Live demo:** https://tonihaddad.github.io/paste-guard/
+
 ![Paste Guard with the English sample note](docs/screenshot-english.png)
 
 ## The need
