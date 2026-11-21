@@ -1,0 +1,140 @@
+notes: 60 (en 20, fr 20, ar 20), labelled entities: 248
+
+RECALL AND PRECISION, ALL NOTES, BY ENTITY TYPE
+group           gold  found  recall  preds correct precision
+PERSON           149    114   76.5%    121     119   98.3%
+PHONE             43     43  100.0%     47      43   91.5%
+EMAIL              3      3  100.0%      3       3  100.0%
+IBAN              12     12  100.0%     12      12  100.0%
+DOB                9      9  100.0%      9       9  100.0%
+ID                11      9   81.8%      9       9  100.0%
+CASE              21      0    0.0%      0       0      - 
+ALL              248    190   76.6%    201     195   97.0%
+
+BY LANGUAGE
+group           gold  found  recall  preds correct precision
+en                84     70   83.3%     74      71   95.9%
+fr                80     63   78.8%     66      65   98.5%
+ar                84     57   67.9%     61      59   96.7%
+
+BY SPLIT (dev = tuned on; heldout = scored before tuning, a few generic fixes after; stress = written after tuning, never tuned on)
+group           gold  found  recall  preds correct precision
+dev              111    100   90.1%    105     101   96.2%
+heldout           54     37   68.5%     40      40  100.0%
+stress            83     53   63.9%     56      54   96.4%
+
+BY LANGUAGE AND TYPE
+group           gold  found  recall  preds correct precision
+en PERSON         50     43   86.0%     45      44   97.8%
+en PHONE          15     15  100.0%     17      15   88.2%
+en EMAIL           1      1  100.0%      1       1  100.0%
+en IBAN            4      4  100.0%      4       4  100.0%
+en DOB             3      3  100.0%      3       3  100.0%
+en ID              4      4  100.0%      4       4  100.0%
+en CASE            7      0    0.0%      0       0      - 
+fr PERSON         49     40   81.6%     42      42  100.0%
+fr PHONE          13     13  100.0%     14      13   92.9%
+fr EMAIL           1      1  100.0%      1       1  100.0%
+fr IBAN            4      4  100.0%      4       4  100.0%
+fr DOB             3      3  100.0%      3       3  100.0%
+fr ID              3      2   66.7%      2       2  100.0%
+fr CASE            7      0    0.0%      0       0      - 
+ar PERSON         50     31   62.0%     34      33   97.1%
+ar PHONE          15     15  100.0%     16      15   93.8%
+ar EMAIL           1      1  100.0%      1       1  100.0%
+ar IBAN            4      4  100.0%      4       4  100.0%
+ar DOB             3      3  100.0%      3       3  100.0%
+ar ID              4      3   75.0%      3       3  100.0%
+ar CASE            7      0    0.0%      0       0      - 
+
+PERSON ONLY, BY LANGUAGE AND SPLIT
+group           gold  found  recall  preds correct precision
+en dev            20     20  100.0%     20      20  100.0%
+en heldout        10      7   70.0%      8       8  100.0%
+en stress         20     16   80.0%     17      16   94.1%
+fr dev            22     22  100.0%     22      22  100.0%
+fr heldout        10      7   70.0%      8       8  100.0%
+fr stress         17     11   64.7%     12      12  100.0%
+ar dev            19     17   89.5%     18      18  100.0%
+ar heldout        10      6   60.0%      7       7  100.0%
+ar stress         21      8   38.1%      9       8   88.9%
+
+STRICT MODE (also redact every capitalised word that does not start a sentence), ALL TYPES, BY LANGUAGE
+group           gold  found  recall  preds correct precision
+en                84     77   91.7%     89      77   86.5%
+fr                80     69   86.3%     76      69   90.8%
+ar                84     57   67.9%     61      59   96.7%
+
+STRICT MODE, PERSON ONLY, STRESS SPLIT
+group           gold  found  recall  preds correct precision
+en stress         20     20  100.0%     26      20   76.9%
+fr stress         17     14   82.4%     16      14   87.5%
+ar stress         21      8   38.1%      9       8   88.9%
+
+MISSED (leaks):
+  en-01 [dev] CASE: CS-2026-004817
+  en-02 [dev] CASE: HL-2026-000312
+  en-07 [dev] CASE: HL-2026-000341
+  en-11 [heldout] PERSON: Dalia Sabra
+  en-11 [heldout] CASE: FAM-2026-01234
+  en-12 [heldout] CASE: HL-2026-000388
+  en-14 [heldout] PERSON: Yvonne Gerges
+  en-15 [heldout] PERSON: Fadia Itani
+  en-16 [stress] PERSON: Tamar Kasparian
+  en-16 [stress] CASE: CS-2026-006077
+  en-17 [stress] PERSON: Wassim
+  en-17 [stress] CASE: HL-2026-000402
+  en-19 [stress] PERSON: Afif Daoud
+  en-20 [stress] PERSON: Fayrouz
+  fr-01 [dev] CASE: CS-2026-005541
+  fr-02 [dev] CASE: HL-2026-000355
+  fr-07 [dev] CASE: HL-2026-000361
+  fr-11 [heldout] PERSON: Dalia Sabra
+  fr-11 [heldout] CASE: FAM-2026-01234
+  fr-12 [heldout] CASE: HL-2026-000388
+  fr-14 [heldout] PERSON: Yvonne Gerges
+  fr-14 [heldout] ID: 123456789012
+  fr-15 [heldout] PERSON: Fadia Itani
+  fr-16 [stress] CASE: CS-2026-006102
+  fr-17 [stress] PERSON: Wassim
+  fr-17 [stress] CASE: HL-2026-000419
+  fr-18 [stress] PERSON: Taline
+  fr-18 [stress] PERSON: Bertille
+  fr-20 [stress] PERSON: Wadih Abi Raad
+  fr-20 [stress] PERSON: Fayrouz
+  fr-20 [stress] PERSON: Wadih
+  ar-01 [dev] CASE: CS-2026-004817
+  ar-02 [dev] CASE: HL-2026-000312
+  ar-04 [dev] PERSON: علي
+  ar-07 [dev] CASE: HL-2026-000341
+  ar-10 [dev] PERSON: سليمان أبي نادر
+  ar-11 [heldout] PERSON: داليا صبرا
+  ar-11 [heldout] CASE: FAM-2026-01234
+  ar-12 [heldout] CASE: HL-2026-000388
+  ar-13 [heldout] PERSON: ماري
+  ar-14 [heldout] PERSON: إيفون جرجس
+  ar-15 [heldout] PERSON: فادية إيتاني
+  ar-16 [stress] PERSON: تمار قصباريان
+  ar-16 [stress] CASE: CS-2026-006077
+  ar-17 [stress] PERSON: وسيم
+  ar-17 [stress] PERSON: نوفل
+  ar-17 [stress] CASE: HL-2026-000402
+  ar-18 [stress] PERSON: جومانة
+  ar-18 [stress] PERSON: زخيا
+  ar-18 [stress] PERSON: طوني
+  ar-18 [stress] PERSON: منى
+  ar-19 [stress] PERSON: عفيف داود
+  ar-19 [stress] PERSON: نصري
+  ar-20 [stress] PERSON: وديع أبي رعد
+  ar-20 [stress] PERSON: فيروز
+  ar-20 [stress] ID: ٤٤٥٥٦٦٧٧٨٨
+  ar-20 [stress] PERSON: وديع
+  ar-20 [stress] PERSON: نقولا
+
+FALSE POSITIVES (wrong span or type):
+  en-02 [dev] PHONE: 2026-000312  (cue)
+  en-07 [dev] PHONE: 2026-000341  (cue)
+  en-16 [stress] PERSON: Ghada  (gazetteer)
+  fr-07 [dev] PHONE: 2026-000361  (cue)
+  ar-07 [dev] PHONE: 2026-000341  (cue)
+  ar-19 [stress] PERSON: خال  (cue)

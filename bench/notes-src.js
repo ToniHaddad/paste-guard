@@ -1,89 +1,101 @@
 /*
- * SYNTHETIC benchmark notes. Every person, number and case is invented.
- * Northbridge Relief is a fictional NGO. Phone numbers use plausible shapes
- * but are made up; email addresses use example domains; IBANs are the public
- * documentation examples; case numbers use the fictional format in detect.js.
+ * SYNTHETIC benchmark notes. Every person, number and case is invented. The
+ * setting is one humanitarian organization in Lebanon ("the Organization");
+ * places are real Lebanese geography, nothing else is real. Phone numbers have
+ * plausible shapes but are made up; emails use example domains; IBANs have the
+ * Lebanese shape but are invented; case numbers use the fictional format in
+ * detect.js.
+ *
+ * Five kinds of note, four of each per language:
+ *   1 social worker's case note from a centre
+ *   2 complaint received on the hotline
+ *   3 note from a shelter in a school during an emergency
+ *   4 message to a warehouse about a delivery to a named family
+ *   5 rent assistance follow-up with a landlord's name and IBAN
  *
  * Markup: {P|text} person, {T|..} phone, {E|..} email, {B|..} IBAN,
  *         {D|..} date of birth, {I|..} ID or passport number, {C|..} case no.
  *
- * Notes 1-10 of each language are the DEV set (used while building the
- * detector). Notes 11-15 are HELD OUT: scored before tuning (see README for
- * the few generic fixes made after). Notes 16-20 are STRESS: informal, few
- * cues, uncommon names; written after tuning finished and never tuned on.
+ * Splits, per language: notes 1-10 DEV (the only ones used for tuning),
+ * 11-15 HELD OUT, 16-20 STRESS (informal, few cues, uncommon names).
+ * Held-out and stress notes were written and labelled before any detection
+ * code was changed for this setting, and are not tuned on.
  */
 const SRC = {
   en: [
-    'Case visit, 3 March. Mrs {P|Hanan Saab} ({C|NBR-LB-2024-004817}) reported that her husband, {P|Elias}, lost his job in January. Phone: {T|+961 71 123 456}. We agreed on a cash assistance review next week.',
-    'Complaint received by phone from Mr. {P|Joseph Karam} about delayed vouchers. He says his household ({C|HH-LB-20417}) has waited six weeks. Call back on {T|03 456 789}. Please summarise this for the area manager without the personal details.',
-    '{P|Wanjiru Kamau}, born {D|14/05/1991}, came to the Kakuma helpdesk with her three children. Her ID number is {I|27384561}. She asked about the nutrition programme. Email: {E|wanjiru.kamau@example.org}',
-    'Interview with Ms {P|Carolina Restrepo} in Soacha. Her son {P|Duván} (aged 9) has been out of school since October. Referred to the education partner. Mobile {T|310 555 0142}. Passport {I|AB1234567}.',
-    'Follow-up: the {P|Abdallah} family were relocated to Zahle. The father, {P|Mustafa Abdallah}, confirmed his new number: {T|76 987 654}. Registration {C|NBR-LB-2023-001209} should be updated.',
-    'Safeguarding concern raised by Dr {P|Peter Otieno} about a minor, {P|Achieng Odhiambo}, 15. The mother can be reached at {T|0712 345 678}. Do not share outside the protection team.',
-    'Notes from home visit: {P|Rima Haddad}, 42, lives with her mother-in-law in Tripoli. IBAN for the transfer: {B|LB62 0999 0000 0001 0019 0122 9114}. DOB: {D|2 August 1982}.',
-    'Verification visit. Neighbour {P|Abdelkader Zein} vouched for the applicant, {P|Fatima Mourad}, who has no documents. Her cousin {P|Nayla} will bring the UNHCR number {I|123-24C01234} next week.',
-    "Please rewrite this politely: 'Dear Mr {P|Kiprono}, your registration {C|NBR-KE-2024-002731} is approved. Collect your voucher at the Eldoret office. Contact us on {T|+254 722 000 111}.'",
-    'Beneficiary {P|Zeinab Ahmad} (DOB {D|12/12/1975}) reports harassment by a landlord named {P|Mahmoud Hamdan}. She gave her email {E|zeinab.ahmad@example.com} and asked us not to call her husband.',
-    // held out
-    'Call log 14:20. Caller: {P|Samuel Mwangi}, Mombasa, asked why his ward {P|Baraka} was removed from the list. His national ID is {I|23456789} and he can be reached on {T|0733 222 111}. Case {C|HH-KE-33012}.',
-    "Mother of the child, {P|Yesenia Cárdenas}, travelled from Cúcuta without her husband. She gave her cédula as {I|1.098.765.432} and phone {T|+57 300 123 4567}. The child's father is {P|Wilmer}.",
-    "Meeting with Imam {P|Khaled Itani} and Ms {P|Dalia Sabra} about the shelter rota. {P|Khaled}'s number is {T|70 123 987}.",
-    '{P|Ruth Njeri} came to the clinic with a referral; her date of birth is {D|3 June 1999}. Email {E|ruth.njeri@example.co.ke}. Her sister {P|Grace Wambui} also registered under {C|NBR-KE-2024-009915}.',
-    'The Sarkissian household in Bourj Hammoud needs a follow-up. Mr {P|Vartan Sarkissian} (ID {I|000123456789}) is hard of hearing, so call his daughter {P|Lara} on {T|01 234 567}.',
-    // stress: written after tuning had finished, informal field-note style, uncommon names, few cues
-    'Spoke to {P|Ibtisam} this morning. Her husband {P|Hrant} lost his shop in the fire and the landlord, {P|Abou Nader}, wants rent in dollars. Please pass this to {P|Gaelle} in protection. {P|Ibtisam} can be reached on {T|03 888 217}.',
-    '{P|Mercy Kerubo}, 29, registered yesterday ({C|NBR-KE-2025-004410}). She is staying with {P|Dennis Ochola} in Kibera. DOB {D|11/11/1996}. {P|Dennis} said he can host her until April.',
-    'Visited the {P|Ramirez} family, Calle 5, Soacha. Ms {P|Yurani Ramirez} was not home; her mother {P|Gilma} gave us {T|315 220 9981}. They need the form signed by Friday.',
-    '{P|Afif Daoud} rang from Zahle. Says the clinic turned his daughter away. Email {E|afif.daoud@example.org}. ID {I|4455667788} on file.',
-    'Handover note: please ask {P|Rawan} or {P|Tamer} to call the {P|Mikati} household. Their cousin, {P|Nasri}, is the contact. {P|Rawan}: {T|76 445 120}.',
+    // ---- dev ----
+    'Home visit, Saida centre, 12 March. Mrs {P|Hanan Saab} (file {C|CS-2026-004817}) came with her mother. Her husband, {P|Elias}, lost his job in January and the family now pays rent from savings. Phone {T|+961 71 123 456}. DOB {D|02/08/1982}. Referred to the cash assistance team; follow up in two weeks.',
+    'Hotline call {C|HL-2026-000312}, received 09:40. Caller: Mr {P|Joseph Karam}, from Jbeil, says the food voucher promised to his household has not arrived after six weeks. He can be called back on {T|03 456 789}. Please summarise for the area manager without personal details.',
+    'Shelter note, school in Zahle, night of 14 October. 38 families registered, 11 new arrivals. The {P|Haddad} family (6 people, head of family {P|Georges Haddad}) needs two mattresses and baby milk. Caretaker {P|Abou Elias} will open the storage room at 7. Duty phone on site: {T|76 987 654}.',
+    'To the WH-07 keeper: please prepare 2 hygiene kits and 1 food box (project FA-2026) for the family of {P|Mohammad Kassem}, Tripoli. The driver, {P|Ali}, will collect on Friday morning. The recipient’s phone is {T|70 998 877}. Waybill DSP-2026-00412.',
+    'Rent assistance follow-up. Landlord Mr {P|Antoine Frem} confirmed that the contract for the {P|Mansour} family’s apartment in Baalbek runs to June. Payment of 3,600 USD to IBAN {B|LB30 0999 0000 0001 0045 2210 7731}. Tenant phone {T|+961 76 555 019}.',
+    'Centre note, Tripoli. {P|Zeinab Ahmad}, 34, widow, three children. Her ID number is {I|000123456789}. She reported pressure from the landlord, {P|Mahmoud Hamdan}, to leave by the end of the month. She does not want us to call her brother. Email {E|zeinab.ahmad@example.org}.',
+    'Complaint by phone ({C|HL-2026-000341}) from Mrs {P|Hoda Nasser} about a staff member who asked her for money to register her family. She does not want her name shared. Her number is {T|71 234 567}. Escalated to the protection focal point.',
+    'School shelter, Halba. The mother of the twins, {P|Maryam}, has a fever; Dr {P|Pascal Rizk} visits tomorrow. Her husband {P|Tarek} went to Beirut to find work and can be reached on {T|+961 3 456 789}. We need blankets for 5 people.',
+    'Hi, this is the Jbeil centre. Please dispatch 4 mattresses and 2 food parcels to Madame {P|Souad Eid} and her son {P|Karim} in Byblos before Thursday. She will sign the waybill. Her number: {T|03 111 222}.',
+    'Rent follow-up for the Saida family: the landlord, {P|Sleiman Abi Nader}, sent his IBAN {B|LB48 0555 0000 0000 0020 3317 6045}. The tenant is {P|Rima Chehade}, passport {I|RL2233445}. The contract ends on 30 June 2026.',
+    // ---- held out ----
+    'Visit note, Zahle centre. {P|Dalia Sabra} (born {D|3 June 1989}) lives with her sister {P|Lara} and two nephews. Phone {T|70 123 987}. Registration {C|FAM-2026-01234} is active. She asked about school fees support.',
+    'Caller: {P|Bassam Chamoun}, 56, from Jounieh, reports that his delivery was left at the wrong address. Complaint number {C|HL-2026-000388}. Please call back on {T|+961 71 330 984} after 5 pm.',
+    'Night report, Saida school shelter. A quarrel between {P|Abou Khaled}’s family and the {P|Zein} family was calmed by Sister {P|Marie}. No injuries. Request: 20 blankets and a lock for the classroom door.',
+    'Please prepare a hygiene kit for {P|Yvonne Gerges}, Tyre, to be collected by her cousin {P|Nabil Sfeir} (ID {I|123456789012}). His number is {T|03 765 432}. WH-12, project EA-2026.',
+    'The landlord, Hajj {P|Ahmad Itani}, asked for a copy of the transfer to IBAN {B|LB71 0222 0000 0000 0018 8804 3392}. The tenant, {P|Fadia Itani}, is his niece, which we noted as a conflict of interest.',
+    // ---- stress ----
+    'Met Ghada’s mother-in-law at the centre. {P|Tamar Kasparian}, 61, speaks only Armenian and Arabic, so her son {P|Hagop} translated. They moved from Bourj Hammoud after the building cracked. {P|Hagop}: {T|71 556 903}. File {C|CS-2026-006077}.',
+    'Hotline, afternoon. A man who gave only his first name, {P|Wassim}, said the distribution list in Akkar includes his dead uncle {P|Nawfal}. Ref {C|HL-2026-000402}. His cousin {P|Rawan} is the contact: {T|76 445 120}.',
+    'Overnight in the Jbeil school: {P|Mouna} and {P|Tamer}’s children have lice, {P|Joumana} from the clinic brought shampoo. Old Mr {P|Zakhia} refuses to move rooms. Ask {P|Tony} to bring two heaters. {P|Mouna}: {T|03 220 114}.',
+    'Hello {P|Charbel}, can you load the cheese boxes for {P|Afif Daoud} in Halba? He is the cousin of Sister {P|Hala}, collects Saturday, has no phone, so use his brother {P|Nasri} on {T|71 000 345}. Waybill DSP-2026-00518.',
+    'Landlord is {P|Wadih Abi Raad}, Jounieh, IBAN {B|LB12 0999 0000 0001 0033 5509 8821}. Tenant {P|Fayrouz}, born {D|2 February 1978}, ID {I|4455667788} on file. {P|Wadih} will sign with the new mokhtar, {P|Nicolas}.',
   ],
   fr: [
-    'Visite à domicile du 12 mars. Madame {P|Hanane Khoury}, née le {D|04/09/1980}, vit avec ses deux enfants à Saïda. Son numéro : {T|03 765 432}. Dossier {C|NBR-LB-2024-005541}. Elle demande un report du loyer.',
-    "Plainte de M. {P|Jean-Claude Nasr} concernant la distribution de bons alimentaires. Son téléphone : {T|+961 76 555 019}. Il affirme que son épouse, {P|Nada}, n'a pas été enregistrée. La visite sera faite par {P|Nawfal} la semaine prochaine.",
-    'Entretien avec Mme {P|Aïcha Benali} (passeport {I|RL4567812}) au centre de Tripoli. Sa fille {P|Inès} a besoin d’un suivi médical. Courriel : {E|aicha.benali@example.org}.',
-    'Le père, {P|Georges Haddad}, fils de {P|Michel}, a signalé un conflit avec le propriétaire. Il est joignable au {T|71 234 567}. IBAN pour le remboursement : {B|FR14 2004 1010 0505 0001 3M02 606}.',
-    'Résumé : la famille {P|Mansour} a été déplacée vers Zahlé. {P|Mariam Mansour}, veuve de {P|Samir}, demande une aide en espèces. N° de dossier {C|HH-LB-18820}. Sa sœur {P|Taline} l’accompagne.',
-    'Dr {P|Pascal Rizk} a orienté le patient {P|Tarek Hammoud} vers le programme de santé mentale. Né le {D|7 juillet 1990}. Contact : {E|tarek.hammoud@example.com}.',
-    "Rapport de terrain : Mme {P|Odette Karam} a refusé l'aide. Sa voisine, {P|Rola}, confirme qu'elle ne peut pas signer. Téléphone de {P|Rola} : {T|03 111 222}.",
-    "La bénéficiaire {P|Salwa Tabet} (carte d'identité n° {I|034567891234}) a perdu son enregistrement {C|NBR-LB-2022-003310}. Merci de résumer sa demande sans citer ses données.",
-    "M. {P|Kevin Mukendi}, né en {D|1987}, est arrivé de Kinshasa. Son numéro : {T|+243 81 234 5678}. Il cherche un hébergement pour sa femme {P|Espérance} et leurs trois enfants.",
-    "Appel de Mademoiselle {P|Léa Sfeir}, 24 ans, au sujet de ses frais de transport. Elle habite à Jounieh. Elle a donné le {T|70 998 877} et son email {E|lea.sfeir@example.org}.",
-    // held out
-    "Madame {P|Rachelle Eid} et son mari {P|Antoine} ont déposé une demande d'abri. Numéro de dossier {C|NBR-LB-2024-007002}. Tél. : {T|76 321 654}.",
-    "Entretien : l'enfant {P|Maryam}, 8 ans, fille de {P|Bassam Chamoun}, ne va plus à l'école. Le père a donné son passeport : {I|LR2345678}. Joignable au {T|+961 3 456 789}. La tante, {P|Zakia}, garde les enfants.",
-    "Le docteur {P|Samia Boutros} demande que le dossier de Mme {P|Yvonne Gerges} soit transféré. Le dossier a été ouvert par {P|Liliane Aoun}. Elle est née le {D|21 janvier 1965}. Mail : {E|y.gerges@example.org}.",
-    "Plainte contre un agent : Monsieur {P|Ghassan Ouaida} affirme qu'on lui a demandé de l'argent. Il a appelé depuis le {T|71 000 345}. Dossier {C|HH-LB-27733}.",
-    "La veuve, {P|Souad}, vit seule à Baalbeck avec son fils {P|Karim}, 12 ans. Registre civil n° {I|2345678}. Visite prévue lundi avec {P|Hrayr} de l'équipe.",
-    // stress
-    'Mme {P|Tamar Kasparian} est venue avec sa m\u00E8re. Elles ont perdu leurs papiers \u00E0 Bourj Hammoud. Contact : {P|Hagop}, {T|71 556 903}. Dossier {C|NBR-LB-2025-001188}.',
-    "Hier, {P|Wassim} a appel\u00E9 la hotline. Sa belle-s\u0153ur {P|Dima} est enceinte et n'a pas de suivi. Il ne veut pas donner son nom de famille. Num\u00E9ro : {T|03 220 114}.",
-    "Entretien avec {P|Joumana}. Son mari, {P|Raymond Abi Raad}, est en d\u00E9tention depuis mars. Elle craint pour ses trois enfants. {P|Jean-Marc}, le voisin, peut garder les enfants.",
-    "La famille de {P|Manuel Ospina} a quitt\u00E9 Arauca. {P|Manuel} parle espagnol et un peu d'anglais. T\u00E9l\u00E9phone WhatsApp : {T|+57 321 700 4455}. N\u00E9 le {D|2 f\u00E9vrier 1978}.",
-    "Dossier transf\u00E9r\u00E9 \u00E0 {P|Bertille}, notre coll\u00E8gue de Tyr. La b\u00E9n\u00E9ficiaire, {P|Oumou Sangar\u00E9}, n'a pas de papiers. IBAN : {B|FR14 2004 1010 0505 0001 3M02 606}.",
+    // ---- dev ----
+    "Visite à domicile, centre de Saïda, 12 mars. Madame {P|Hanane Khoury} (dossier {C|CS-2026-005541}), née le {D|04/09/1980}, vit avec ses deux enfants. Son mari, {P|Georges}, est sans emploi depuis janvier. Joignable au {T|03 765 432}. Orientée vers l’équipe d’aide en espèces.",
+    "Appel à la ligne d’assistance {C|HL-2026-000355}. Monsieur {P|Jean-Claude Nasr} se plaint que son bon alimentaire n’est pas arrivé. Il dit que son épouse, {P|Nada}, n’a pas été enregistrée. Rappeler au {T|+961 76 555 019}.",
+    "Note de nuit, abri dans l’école de Zahlé. 41 familles. La famille {P|Mansour} (6 personnes) a besoin de matelas. {P|Mariam Mansour}, veuve de {P|Samir}, signale que sa fille a de la fièvre. Le gardien, {P|Abou Joseph}, ouvre le dépôt à 7 h.",
+    "Bonjour, merci de préparer au dépôt WH-12 deux kits d’hygiène et un colis alimentaire (projet FA-2026) pour la famille de {P|Tarek Hammoud} à Tripoli. Le chauffeur, {P|Elie}, passera vendredi. Téléphone du bénéficiaire : {T|70 998 877}.",
+    "Suivi loyer : le propriétaire, M. {P|Antoine Frem}, a confirmé le contrat de la famille {P|Mansour} à Baalbek jusqu’en juin. Virement de 3 600 USD sur l’IBAN {B|LB30 0999 0000 0001 0045 2210 7731}. Locataire : {T|03 456 789}.",
+    "Note de centre, Tripoli. Mme {P|Aïcha Benali}, 34 ans, veuve, trois enfants. Passeport {I|RL4408123}. Elle dit subir des pressions de son propriétaire, {P|Mahmoud Hamdan}. Elle ne veut pas que nous appelions son frère. Courriel : {E|aicha.benali@example.org}.",
+    "Plainte reçue par téléphone ({C|HL-2026-000361}) de Mme {P|Hoda Nasser} : un agent lui aurait demandé de l’argent. Elle demande l’anonymat. Numéro : {T|71 234 567}. Transmis au point focal protection.",
+    "Abri, école de Halba. {P|Maryam}, mère des jumeaux, a de la fièvre ; le docteur {P|Pascal Rizk} passe demain. Son mari, {P|Tarek}, travaille à Beyrouth : {T|03 111 222}. Besoin de 5 couvertures.",
+    "Merci d’expédier 4 matelas et 2 colis à Madame {P|Souad Eid} et son fils {P|Karim}, à Jbeil, avant jeudi. Elle signera le bordereau. Son numéro : {T|76 321 654}. Bordereau DSP-2026-00431.",
+    "Loyer : propriétaire {P|Sleiman Abi Nader}, IBAN {B|LB48 0555 0000 0000 0020 3317 6045}. Locataire {P|Rima Chehade}, carte d’identité n° {I|034567891234}. Le contrat se termine le 30 juin 2026.",
+    // ---- held out ----
+    "Visite, centre de Zahlé. {P|Dalia Sabra}, née le {D|3 juin 1989}, vit avec sa sœur {P|Lara}. Tél. {T|70 123 987}. Dossier {C|FAM-2026-01234} actif. Elle demande une aide pour les frais de scolarité.",
+    "Appelant : {P|Bassam Chamoun}, 56 ans, de Jounieh. Sa livraison a été déposée à la mauvaise adresse. Réf. {C|HL-2026-000388}. Rappeler au {T|+961 71 330 984} après 17 h.",
+    "Rapport de nuit, abri de l’école de Saïda. Dispute entre la famille de {P|Abou Khaled} et la famille {P|Zein}, calmée par sœur {P|Marie}. Pas de blessés. Besoin de 20 couvertures.",
+    "Merci de préparer un kit d’hygiène pour {P|Yvonne Gerges}, à Tyr, retrait par son cousin {P|Nabil Sfeir} (carte {I|123456789012}). Son numéro : {T|03 765 432}. WH-12, projet EA-2026.",
+    "Le propriétaire, Hajj {P|Ahmad Itani}, demande la copie du virement vers l’IBAN {B|LB71 0222 0000 0000 0018 8804 3392}. La locataire, {P|Fadia Itani}, est sa nièce : conflit d’intérêts noté.",
+    // ---- stress ----
+    "Entretien avec {P|Joumana}. Son mari, {P|Raymond Abi Raad}, est détenu depuis mars. Elle craint pour ses enfants. {P|Jean-Marc}, le voisin, peut les garder. Elle a perdu son passeport ; dossier {C|CS-2026-006102}.",
+    "Appel de la ligne : {P|Wassim} a dit que sa belle-sœur {P|Dima} est enceinte et sans suivi. Il refuse de donner son nom de famille. Rappeler {P|Dima} au {T|03 220 114}. Réf. {C|HL-2026-000419}.",
+    "Abri de Jbeil, nuit : les enfants de {P|Mouna} ont des poux. {P|Taline}, de la clinique, a apporté du shampoing. Dites à {P|Bertille} de venir avec deux radiateurs. {P|Mouna} : {T|71 556 903}.",
+    "Salut {P|Charbel}, peux-tu charger les cartons de fromage pour {P|Zakaria} à Halba ? Il retire samedi, pas de téléphone, appeler son frère {P|Hrayr} au {T|76 445 120}. Bordereau DSP-2026-00577.",
+    "Propriétaire : {P|Wadih Abi Raad}, Jounieh, IBAN {B|LB12 0999 0000 0001 0033 5509 8821}. Locataire {P|Fayrouz}, née le {D|2 février 1978}. {P|Wadih} signera avec le moukhtar, {P|Nicolas}.",
   ],
   ar: [
-    'زيارة منزلية بتاريخ ١٢ آذار. السيدة {P|حنان صعب} (رقم الملف {C|NBR-LB-2024-004817}) أبلغت أن زوجها {P|إلياس} فقد عمله. رقم الهاتف: {T|٠٣ ١٢٣ ٤٥٦}. تحتاج إلى مساعدة نقدية.',
-    'اتصل السيد {P|محمد الحاج} بخصوص تأخر القسائم الغذائية. يقيم في طرابلس ورقم هاتفه {T|+961 76 555 019}. ذكر أن ابنه {P|يوسف} مريض.',
-    'المستفيدة {P|زينب حمدان}، من مواليد {D|04/09/1980}، تسكن مع والدتها في صيدا. رقم الهوية {I|٠٣٤٥٦٧٨٩١٢٣٤}. البريد: {E|zeinab.hamdan@example.org}',
-    'بلغ الأستاذ {P|جورج نصار} عن خلاف مع مالك المنزل. زوجته {P|ندى} لا تملك أوراقاً ثبوتية. للتواصل: {T|71 234 567}.',
-    'الأسرة: {P|أبو خالد} ({P|فادي عيسى}) وأفراد الأسرة انتقلوا إلى زحلة. رقم الأسرة {C|HH-LB-18820}. رقم حسابه IBAN: {B|LB62 0999 0000 0001 0019 0122 9114}.',
-    'تقرير ميداني: السيدة {P|ماريا الخوري} رفضت المساعدة. جارتها {P|رولا} شهدت أنها لا تستطيع التوقيع. هاتف {P|رولا} {T|٠٣ ١١١ ٢٢٢}.',
-    'المريض {P|طارق همود} (مولود في {D|7 تموز 1990}) أُحيل إلى برنامج الصحة النفسية. ابنته {P|ميرا} تحتاج إلى متابعة.',
-    'قدمت السيدة {P|آمنة محمود} شكوى ضد موظف طلب منها مبلغاً مالياً. جواز سفرها رقم {I|RL4567812} وجوالها {T|70 998 877}.',
-    'طلب الشيخ {P|عبد الرحمن سلوم} نقل ملف ابنة أخيه {P|نادين} إلى مكتب البقاع. رقم القيد {I|2345678}. الملف {C|NBR-LB-2022-003310}.',
-    'المواطن {P|حسين عبد الله}، من مواليد {D|1987}، وصل من حلب مع زوجته {P|هدى} وأطفالهما الثلاثة. هاتفه {T|0096170123987}.',
-    // held out
-    'اتصلت الآنسة {P|لارا شهاب} لتسأل عن موعد التوزيع. تسكن في الدكوانة. بريدها {E|lara.chehab@example.com} ورقم ملفها {C|NBR-LB-2024-007002}.',
-    'أخبرنا {P|أبو علي} بأن ابنه {P|بلال} ترك المدرسة. العائلة من آل {P|الصباغ} وتقيم في مخيم برج البراجنة. الهاتف {T|٧٦٣٢١٦٥٤}.',
-    'الدكتورة {P|سميرة قاسم} طلبت تحويل ملف السيدة {P|إيفون جرجس}. تاريخ الميلاد: {D|٢١/٠١/١٩٦٥}. رقم الهوية {I|123456789012}.',
-    'شكوى ضد موظف: قال السيد {P|غسان عويدة} إنه طُلب منه مال. اتصل من الرقم {T|71 000 345}. رقم الأسرة {C|HH-LB-27733}.',
-    'الأرملة {P|سعاد} تعيش وحدها في بعلبك مع ابنها {P|كريم} (١٢ سنة). الجارة {P|أم جميل} ساعدتها في التسجيل.',
-    // stress
-    'تواصلت مع {P|تيماء} الليلة الماضية. زوجها {P|حافظ} فقد عمله في الحريق. اتصلت بالرقم {T|٠٣ ٨٨٨ ٢١٧} ولم تجب.',
-    'المستفيد: {P|عماد الدين شرارة}، من مواليد {D|١٩٧٤}. رقم الملف {C|NBR-LB-2025-002257}. يسكن في عكار مع شقيقه {P|نبيل}.',
-    'قالت {P|أم كنان} إن المدرسة طلبت أوراقاً. حاولنا الاتصال بالمختار {P|وليد حبيب} فلم يرد. للاتصال: {T|+961 71 330 984}.',
-    'ابنة السيدة {P|نجلاء قصّار}، {P|لينا}، حامل وتحتاج إلى فحص. بريد الأسرة: {E|qassar.family@example.org}. هوية رقم {I|١٢٣٤٥٦٧٨٩}.',
-    'تم تحويل ملف {P|إيناس} إلى المكتب. والدها، السيد {P|غابي الأشقر}، يطلب موعداً. الرقم: {T|٧٠ ٥٥٥ ٠١٢}.',
+    // ---- dev ----
+    'زيارة منزلية، مركز صيدا، ١٢ آذار. السيدة {P|حنان صعب} (ملف {C|CS-2026-004817}) حضرت مع والدتها. زوجها {P|إلياس} فقد عمله في كانون الثاني. هاتفها {T|٠٣ ١٢٣ ٤٥٦}. تاريخ الميلاد {D|٠٢/٠٨/١٩٨٢}. أُحيلت إلى فريق المساعدة النقدية.',
+    'اتصال على الخط الساخن {C|HL-2026-000312}. المتصل السيد {P|محمد الحاج} من جبيل يقول إن القسيمة الغذائية لم تصل منذ ستة أسابيع. للاتصال به {T|+961 76 555 019}. يرجى تلخيص الشكوى لمدير المنطقة دون بيانات شخصية.',
+    'ملاحظة الملجأ، مدرسة زحلة، ليلة ١٤ تشرين الأول. ٣٨ عائلة. عائلة {P|حداد} (٦ أشخاص) تحتاج إلى فرشتين. {P|أبو إلياس} حارس المدرسة سيفتح المستودع الساعة السابعة. رقم المناوب {T|٧٦ ٩٨٧ ٦٥٤}.',
+    'إلى أمين مستودع WH-07: يرجى تجهيز حقيبتي نظافة وطرد غذائي (مشروع FA-2026) لعائلة {P|محمد قاسم} في طرابلس. السائق {P|علي} سيستلم صباح الجمعة. هاتف المستفيد {T|70 998 877}. بوليصة DSP-2026-00412.',
+    'متابعة بدل الإيجار: المالك السيد {P|أنطوان فرم} أكد عقد عائلة {P|منصور} في بعلبك حتى حزيران. المبلغ ٣٬٦٠٠ دولار إلى الحساب {B|LB30 0999 0000 0001 0045 2210 7731}. هاتف المستأجر {T|+961 76 555 019}.',
+    'ملاحظة مركز طرابلس. {P|زينب أحمد}، ٣٤ سنة، أرملة ولديها ثلاثة أطفال. رقم الهوية {I|٠٠٠١٢٣٤٥٦٧٨٩}. تشكو من ضغط المالك {P|محمود حمدان} لإخلاء المنزل. لا تريد أن نتصل بأخيها. البريد {E|zeinab.ahmad@example.org}.',
+    'شكوى هاتفية ({C|HL-2026-000341}) من السيدة {P|هدى ناصر} عن موظف طلب منها مالاً لتسجيل عائلتها. تطلب عدم ذكر اسمها. رقمها {T|71 234 567}. أُحيلت إلى منسق الحماية.',
+    'ملجأ مدرسة حلبا. {P|مريم} أم التوأم مصابة بالحمى والطبيب {P|باسكال رزق} سيزورها غداً. زوجها {P|طارق} سافر إلى بيروت للعمل ورقمه {T|٠٣ ٤٥٦ ٧٨٩}. نحتاج خمس بطانيات.',
+    'مرحباً، من مركز جبيل: يرجى إرسال ٤ فرشات وطردين غذائيين إلى السيدة {P|سعاد عيد} وابنها {P|كريم} قبل الخميس. ستوقّع على البوليصة. رقمها {T|03 111 222}.',
+    'متابعة الإيجار: المالك {P|سليمان أبي نادر}، رقم الحساب {B|LB48 0555 0000 0000 0020 3317 6045}. المستأجرة {P|ريما شحادة} جواز سفرها {I|RL2233445}. العقد ينتهي في ٣٠ حزيران ٢٠٢٦.',
+    // ---- held out ----
+    'زيارة مركز زحلة. {P|داليا صبرا}، مولودة في {D|٣ حزيران ١٩٨٩}، تسكن مع أختها {P|لارا} وولديها. هاتفها {T|70 123 987}. تسجيل العائلة {C|FAM-2026-01234} فعّال. تسأل عن دعم الأقساط المدرسية.',
+    'المتصل: {P|بسام شمعون}، ٥٦ سنة، من جونيه. أُوصل طرده إلى عنوان خاطئ. رقم الشكوى {C|HL-2026-000388}. الاتصال على {T|+961 71 330 984} بعد الخامسة.',
+    'تقرير الليل، ملجأ مدرسة صيدا. خلاف بين عائلة {P|أبو خالد} وعائلة {P|زين} هدّأته الأخت {P|ماري}. لا إصابات. المطلوب ٢٠ بطانية.',
+    'يرجى تجهيز حقيبة نظافة للسيدة {P|إيفون جرجس} في صور ليستلمها ابن عمها {P|نبيل صفير} (هوية {I|123456789012}). رقمه {T|03 765 432}. مستودع WH-12، مشروع EA-2026.',
+    'المالك الحاج {P|أحمد إيتاني} يطلب نسخة عن التحويل إلى {B|LB71 0222 0000 0000 0018 8804 3392}. المستأجرة {P|فادية إيتاني} ابنة أخيه، وقد سجلنا تضارب مصالح.',
+    // ---- stress ----
+    'تواصلت مع حماة {P|غادة} في المركز. {P|تمار قصباريان}، ٦١ سنة، تتكلم الأرمنية والعربية فقط فترجم ابنها {P|هاكوب}. انتقلوا من برج حمود بعد تشقق المبنى. هاتف {P|هاكوب} {T|٧١ ٥٥٦ ٩٠٣}. ملف {C|CS-2026-006077}.',
+    'الخط الساخن بعد الظهر: رجل ذكر اسمه الأول فقط، {P|وسيم}، قال إن لائحة التوزيع في عكار تضم عمه المتوفى {P|نوفل}. مرجع {C|HL-2026-000402}. ابنة عمه {P|روان} هي جهة الاتصال: {T|76 445 120}.',
+    'ليلة في مدرسة جبيل: أولاد {P|منى} و{P|تامر} أصيبوا بالقمل وجاءت {P|جومانة} من العيادة بالشامبو. العم {P|زخيا} يرفض تغيير الغرفة. اطلبوا من {P|طوني} تأمين مدفأتين. {P|منى}: {T|03 220 114}.',
+    'مرحباً {P|شربل}، هل تحمّل علب الجبن لـ{P|عفيف داود} في حلبا؟ هو ابن خال الأخت {P|هالة}، يستلم السبت وليس لديه هاتف، اتصلوا بأخيه {P|نصري} على {T|71 000 345}. بوليصة DSP-2026-00518.',
+    'المالك {P|وديع أبي رعد} في جونيه، الحساب {B|LB12 0999 0000 0001 0033 5509 8821}. المستأجرة {P|فيروز}، من مواليد {D|٢ شباط ١٩٧٨}، هويتها رقم {I|٤٤٥٥٦٦٧٧٨٨} في الملف. {P|وديع} سيوقّع مع المختار {P|نقولا}.',
   ],
 };
 
