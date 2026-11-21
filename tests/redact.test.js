@@ -40,7 +40,7 @@ test('the redacted text contains none of the detected values', () => {
 
 test('restore puts the original values back', () => {
   const s = new Session();
-  const text = 'Mrs Hanan Saab (NBR-LB-2024-004817) can be reached on +961 71 123 456.';
+  const text = 'Mrs Hanan Saab (CS-2026-004817) can be reached on +961 71 123 456.';
   const r = run(text, s);
   assert.equal(restore(r.output, s).output, text);
 });

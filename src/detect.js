@@ -9,9 +9,10 @@
  * Types: PERSON PHONE EMAIL IBAN DOB ID CASE OTHER
  *
  * CASE numbers use a FICTIONAL format invented for this project:
- *   NBR-<LB|KE|CO>-<year>-<6 digits>   case or registration file
- *   HH-<LB|KE|CO>-<5 digits>           household number
- * No real agency uses these formats.
+ *   CS-<year>-<4-6 digits>    social work case file     CS-2026-004817
+ *   HL-<year>-<4-6 digits>    hotline complaint         HL-2026-000312
+ *   FAM-<year>-<4-6 digits>   family registration       FAM-2026-01234
+ * No real organization uses these formats.
  */
 (function () {
   'use strict';
@@ -52,7 +53,7 @@
   const AMB_LAT = new Set(G.ar.ambiguousLat);
   const STOP_LAT = new Set(G.stopLat.map(latNorm));
   const STOP_AR = new Set(G.stopAr.map(arNorm));
-  for (const lang of ['en', 'fr', 'sw', 'es', 'ar']) {
+  for (const lang of ['en', 'fr', 'ar']) {
     for (const w of G[lang].given) if (w) LAT_NAMES.add(latNorm(w));
     for (const w of G[lang].family) if (w) LAT_NAMES.add(latNorm(w));
   }
@@ -60,11 +61,13 @@
   for (const w of G.ar.familyAr) if (w) AR_NAMES.add(arNorm(w));
   for (const w of G.ar.ambiguousAr) AR_NAMES.add(arNorm(w));
 
-  const CONN_PRE = new Set(['al', 'el', 'abu', 'abou', 'bou', 'bin', 'ibn', 'ben', 'umm', 'oum',
+  // Particles that belong to a name: Al-Masri, El Hajj, Abou Elias, Abi Nader, Bou Khalil, Abdel Nasser, ابن, أبو, بو.
+  const CONN_PRE = new Set(['al', 'el', 'abu', 'abou', 'bou', 'abi', 'bin', 'ibn', 'ben', 'umm', 'oum', 'om',
+    'abd', 'abdel', 'abdul', 'abdal',
     '\u0628\u0646', '\u0627\u0628\u0646', '\u0628\u0646\u062A', '\u0627\u0644', '\u0622\u0644',
-    '\u0627\u0644', '\u0627\u0628\u0648', '\u0627\u0628\u064A', '\u0627\u0645']
+    '\u0627\u0628\u0648', '\u0627\u0628\u064A', '\u0628\u0648', '\u0627\u0645']
     .map(normTok));
-  const CONN_MID = new Set(['de', 'del', 'la', 'los', 'las', 'da', 'dos', 'van', 'von', 'di']);
+  const CONN_MID = new Set(['de', 'del', 'la', 'da', 'di']);
   const CONN_ALL = new Set([...CONN_PRE, ...CONN_MID]);
 
   // ---------- tokens ----------
@@ -91,6 +94,8 @@
   function arLookup(t) {
     let w = t.norm;
     if (AR_NAMES.has(w)) return { amb: AMB_AR.has(w), s2: t.s };
+    // "the owner" is a noun, not a name
+    if (w === 'المالك') return null;
     if (w.startsWith('\u0627\u0644') && AR_NAMES.has(w.slice(2))) return { amb: AMB_AR.has(w.slice(2)), s2: t.s };
     // single-letter prefix: and / with / for / so / like
     if (t.raw[0] === '\u0648' && w.length >= 4) {
@@ -111,6 +116,10 @@
           t.kind = hit.amb && !(hit.ambLoose && t.raw[0] === 'و') ? 'amb' : 'name';
           t.s2 = hit.s2;
         } else if (CONN_PRE.has(t.norm)) t.kind = 'conn';
+        // "Imad al-Din", "Salah al-Din": a name ending in الدين behaves as one name
+        if (tokens[i + 1] && tokens[i + 1].ar && tokens[i + 1].norm === 'الدين' && !isStopAr(t) && t.norm.length >= 3) {
+          t.kind = 'name'; tokens[i + 1].kind = 'name';
+        }
         // compound "Abd al-X": the two words behave as one name
         if (t.norm === '\u0639\u0628\u062F' && tokens[i + 1] && tokens[i + 1].ar &&
             tokens[i + 1].norm.startsWith('\u0627\u0644') && tokens[i + 1].norm.length <= 10) {
@@ -134,6 +143,8 @@
     return k < 0 || /[.!?:;\n\r\u061F\u2022*\-]/.test(text[k]);
   }
   const isStopLat = (t) => STOP_LAT.has(t.norm);
+  // "علي" (Ali) and "على" (on) normalise to the same letters; only the second is a stop word
+  const isStopAr = (t) => STOP_AR.has(t.norm) && t.raw.replace(/[ً-ٟ]/g, '') !== 'علي';
 
   // ---------- person: gazetteer runs ----------
 
@@ -191,7 +202,7 @@
 
   function arCapture(text, tokens, idx, needHit, extra) {
     const t0 = tokens[idx];
-    if (!t0 || !t0.ar || t0.norm.length < 2 || STOP_AR.has(t0.norm)) return null;
+    if (!t0 || !t0.ar || t0.norm.length < 2 || isStopAr(t0)) return null;
     const hit = t0.kind === 'name' || t0.kind === 'amb';
     if (needHit && !hit) return null;
     if (!hit && (t0.norm.startsWith('ال') || verbLike(t0))) return null; // "the director", a verb
@@ -200,29 +211,29 @@
       const t = tokens[b + 1];
       if (t.kind === 'name' || t.kind === 'amb') { b++; count++; continue; }
       if (t.kind === 'conn' && tokens[b + 2] && adjacent(text, t, tokens[b + 2]) &&
-          tokens[b + 2].ar && !STOP_AR.has(tokens[b + 2].norm) &&
+          tokens[b + 2].ar && !isStopAr(tokens[b + 2]) &&
           (tokens[b + 2].kind || !tokens[b + 2].norm.startsWith('ال'))) { b += 2; count += 2; continue; }
       break;
     }
     // formal cues (السيد ...): one more unknown word is usually the family name
     if (extra && b + 1 < tokens.length && adjacent(text, tokens[b], tokens[b + 1])) {
       const t = tokens[b + 1];
-      if (t.ar && !t.kind && !STOP_AR.has(t.norm) && !t.norm.startsWith('ال') && !verbLike(t) &&
+      if (t.ar && !t.kind && !isStopAr(t) && !t.norm.startsWith('ال') && !verbLike(t) &&
           t.norm.length >= 3 && t.norm.length <= 9) b++;
     }
     return { a: idx, b };
   }
 
-  const LAT_TITLES = '(?<![\\p{L}])(?:Mr|Mrs|Ms|Mx|Miss|Dr|Prof|Mme|Mlle|Sheikh|Sheikha|Sr|Sra|Srta|D\u00F1a|Do\u00F1a|Don|Se\u00F1or|Se\u00F1ora|Se\u00F1orita|Monsieur|Madame|Mademoiselle|Docteur|Docteure|Ma\u00EEtre|Bwana|Bw|Bi|Mama|Mzee|Mwalimu|Imam|Father|P\u00E8re|Sister|S\u0153ur|Soeur|Abb\u00E9)(?![\\p{L}])\\.?|(?<![\\p{L}])M\\.';
-  const LAT_REL = '(?<![\\p{L}])(?:(?:son|daughter|wife|husband|widow|widower|mother|father|brother|sister|cousin|uncle|aunt|nephew|niece|spouse|guardian|partner|child|grandmother|grandfather) of|fils de|fille de|\u00E9pouse de|epouse de|femme de|mari de|veuve de|veuf de|m\u00E8re de|p\u00E8re de|fr\u00E8re de|s\u0153ur de|soeur de|cousin de|cousine de|oncle de|tante de|conjoint de|tuteur de|n\u00E9e|nee|dit|alias|known as|a\\.k\\.a\\.?|called|named|nomm\u00E9e?|appel\u00E9e?|d\u00E9nomm\u00E9e?|hijo de|hija de|esposa de|esposo de|madre de|padre de|hermano de|hermana de|llamado|llamada|mwana wa|mtoto wa|mke wa|mume wa|anaitwa)(?![\\p{L}])';
-  const LAT_KIN = '(?<![\\p{L}])(?:son|daughter|wife|husband|mother|father|brother|sister|cousin|uncle|aunt|nephew|niece|neighbou?r|friend|ward|child|spouse|partner|colleague|patient|beneficiary|client|caller|applicant|complainant|b\u00E9n\u00E9ficiaire|patiente|plaignante?|demandeur|demandeuse|fils|fille|\u00E9pouse|epouse|femme|mari|m\u00E8re|p\u00E8re|fr\u00E8re|s\u0153ur|soeur|cousine|oncle|tante|voisine?|amie?|enfant|coll\u00E8gue|hijo|hija|esposa|esposo|madre|padre|hermano|hermana|vecin[oa]|amig[oa]|ni\u00F1[oa]|mtoto|mke|mume|jirani|rafiki)(?![\\p{L}])\\s*,?\\s*';
-  const LAT_KUNYA = '(?<![\\p{L}])(?:Abu|Abou|Umm|Oum)(?![\\p{L}])';
-  const LAT_LABEL = '(?<![\\p{L}])(?:name|nom|nombre|jina|beneficiary|b\u00E9n\u00E9ficiaire|beneficiario|beneficiaria|client|patient|head of household|chef de m\u00E9nage|chef de famille|complainant|plaignante?|applicant|demandeur|demandeuse|caller|interviewee|informant|contact person|focal point|caseworker|case worker|officer|supervisor|interpreter|interpr\u00E8te|reporter|guardian|tuteur|mother|father|m\u00E8re|p\u00E8re)\\s*[:\uFF1A]\\s*';
+  const LAT_TITLES = '(?<![\\p{L}])(?:Mr|Mrs|Ms|Mx|Miss|Dr|Prof|Mme|Mlle|Sheikh|Sheikha|Monsieur|Madame|Mademoiselle|Docteur|Docteure|Ma\u00EEtre|Imam|Father|P\u00E8re|Sister|S\u0153ur|Soeur|Abb\u00E9|Abouna|Hajj|Hajje|Hajja|Haj|Sitt|Sayyed|Sayyida|Mouallem|Ustaz|Ostez|Oustez)(?![\\p{L}])\\.?|(?<![\\p{L}])M\\.';
+  const LAT_REL = '(?<![\\p{L}])(?:(?:son|daughter|wife|husband|widow|widower|mother|father|brother|sister|cousin|uncle|aunt|nephew|niece|spouse|guardian|partner|child|grandmother|grandfather) of|fils de|fille de|\u00E9pouse de|epouse de|femme de|mari de|veuve de|veuf de|m\u00E8re de|p\u00E8re de|fr\u00E8re de|s\u0153ur de|soeur de|cousin de|cousine de|oncle de|tante de|conjoint de|tuteur de|n\u00E9e|nee|alias|known as|a\\.k\\.a\\.?|called|named|nomm\u00E9e?|appel\u00E9e?|d\u00E9nomm\u00E9e?)(?![\\p{L}])';
+  const LAT_KIN = '(?<![\\p{L}])(?:son|daughter|wife|husband|mother|father|brother|sister|cousin|uncle|aunt|nephew|niece|neighbou?r|friend|ward|child|spouse|partner|colleague|patient|beneficiary|client|caller|applicant|complainant|landlord|tenant|owner|driver|doctor|nurse|fils|fille|\u00E9pouse|epouse|femme|mari|m\u00E8re|p\u00E8re|fr\u00E8re|s\u0153ur|soeur|cousine|oncle|tante|voisine?|amie?|enfant|coll\u00E8gue|b\u00E9n\u00E9ficiaire|patiente|plaignante?|demandeur|demandeuse|propri\u00E9taire|locataire|chauffeur|m\u00E9decin|infirmi\u00E8re|infirmier)(?![\\p{L}])\\s*,?\\s*';
+  const LAT_KUNYA = '(?<![\\p{L}])(?:Abu|Abou|Umm|Oum|Om|Bou|Abi)(?![\\p{L}])';
+  const LAT_LABEL = '(?<![\\p{L}])(?:name|nom|beneficiary|b\u00E9n\u00E9ficiaire|client|patient|head of household|chef de m\u00E9nage|chef de famille|complainant|plaignante?|applicant|demandeur|demandeuse|caller|appelant|appelante|interviewee|informant|contact person|focal point|caseworker|case worker|landlord|tenant|owner|propri\u00E9taire|locataire|officer|supervisor|interpreter|interpr\u00E8te|reporter|guardian|tuteur|mother|father|m\u00E8re|p\u00E8re)\\s*[:\uFF1A]\\s*';
 
   const AR_P = '[\u0648\u0628\u0644\u0641\u0643]?';
-  const AR_TITLES = `(?<![\\p{L}])${AR_P}(?:\u0627\u0644\u0633\u064A\u062F\u0629|\u0627\u0644\u0633\u064A\u062F|\u0627\u0644\u0622\u0646\u0633\u0629|\u0627\u0644\u0627\u0646\u0633\u0629|\u0627\u0644\u0623\u0633\u062A\u0627\u0630\u0629|\u0627\u0644\u0623\u0633\u062A\u0627\u0630|\u0627\u0644\u0627\u0633\u062A\u0627\u0630\u0629|\u0627\u0644\u0627\u0633\u062A\u0627\u0630|\u0627\u0644\u062F\u0643\u062A\u0648\u0631\u0629|\u0627\u0644\u062F\u0643\u062A\u0648\u0631|\u0627\u0644\u0634\u064A\u062E\u0629|\u0627\u0644\u0634\u064A\u062E|\u0627\u0644\u062D\u0627\u062C\u0629|\u0627\u0644\u062D\u0627\u062C|\u0627\u0644\u0645\u062F\u0639\u0648|\u0627\u0644\u0645\u062F\u0639\u0648\u0629|\u0627\u0644\u0645\u0648\u0627\u0637\u0646\u0629|\u0627\u0644\u0645\u0648\u0627\u0637\u0646|\u0639\u0627\u0626\u0644\u0629)(?![\\p{L}])`;
+  const AR_TITLES = `(?<![\\p{L}])${AR_P}(?:السيدة|السيد|الآنسة|الانسة|الأستاذة|الأستاذ|الاستاذة|الاستاذ|الدكتورة|الدكتور|الشيخة|الشيخ|الحاجة|الحاج|المدعو|المدعوة|المواطنة|المواطن|عائلة|المعلم|المعلمة|أبونا|الخوري|الأب)(?![\\p{L}])`;
   const AR_REL = `(?<![\\p{L}])${AR_P}(?:ابنته|ابنتها|بنته|بنتها|زوجته|زوجتها|والدته|والدتها|أخته|اخته|أختها|اختها|شقيقته|شقيقتها|جارته|جارتها|ابنه|ابنها|زوجها|والده|والدها|أخوه|اخوه|أخوها|اخوها|أخيه|أخيها|جاره|جارها|ابنة|ابن|بنت|زوجة|زوج|والدة|والد|أخت|اخت|أخ|اخ|شقيقة|شقيق|جارة|جار|الجارة|الجار|الأرملة|الارملة)(?![\\p{L}])`;
-  const AR_ROLE = `(?<![\\p{L}])${AR_P}(?:المريضة|المريض|المستفيدة|المستفيد|المتصلة|المتصل|الشاكية|الشاكي)(?![\\p{L}])`;
+  const AR_ROLE = `(?<![\\p{L}])${AR_P}(?:المريضة|المريض|المستفيدة|المستفيد|المتصلة|المتصل|الشاكية|الشاكي|السائق|المالك|المالكة|المستأجر|المستأجرة|الطبيب|الطبيبة|الممرضة|الحارس)(?![\\p{L}])`;
   const AR_KUNYA = '(?<![\\p{L}])(?:\u0623\u0628\u0648|\u0627\u0628\u0648|\u0623\u0645|\u0627\u0645)(?![\\p{L}])';
   const AR_LABEL = '(?<![\\p{L}])(?:\u0627\u0644\u0627\u0633\u0645|\u0627\u0644\u0645\u0633\u062A\u0641\u064A\u062F|\u0627\u0644\u0645\u0633\u062A\u0641\u064A\u062F\u0629|\u0627\u0644\u0645\u062A\u0635\u0644|\u0627\u0644\u0645\u062A\u0635\u0644\u0629|\u0645\u0642\u062F\u0645 \u0627\u0644\u0637\u0644\u0628|\u0645\u0642\u062F\u0645\u0629 \u0627\u0644\u0637\u0644\u0628|\u0627\u0644\u0634\u0627\u0643\u064A|\u0627\u0644\u0634\u0627\u0643\u064A\u0629|\u0631\u0628 \u0627\u0644\u0623\u0633\u0631\u0629)\\s*[:\uFF1A]\\s*';
 
@@ -288,21 +299,24 @@
 
   const MONTHS = 'jan(?:uary|\\.)?|feb(?:ruary|\\.)?|mar(?:ch|\\.)?|apr(?:il|\\.)?|may|jun(?:e|\\.)?|jul(?:y|\\.)?|aug(?:ust|\\.)?|sep(?:t(?:ember)?|\\.)?|oct(?:ober|\\.)?|nov(?:ember|\\.)?|dec(?:ember|\\.)?|' +
     'janvier|janv\\.?|f\u00E9vrier|fevrier|f\u00E9vr\\.?|mars|avril|mai|juin|juillet|juil\\.?|ao\u00FBt|aout|septembre|octobre|novembre|d\u00E9cembre|decembre|' +
+    '\u064A\u0646\u0627\u064A\u0631|\u0641\u0628\u0631\u0627\u064A\u0631|\u0645\u0627\u0631\u0633|\u0623\u0628\u0631\u064A\u0644|\u0627\u0628\u0631\u064A\u0644|\u0645\u0627\u064A\u0648|\u064A\u0648\u0646\u064A\u0648|\u064A\u0648\u0644\u064A\u0648|\u0623\u063A\u0633\u0637\u0633|\u0627\u063A\u0633\u0637\u0633|\u0633\u0628\u062A\u0645\u0628\u0631|\u0623\u0643\u062A\u0648\u0628\u0631|\u0627\u0643\u062A\u0648\u0628\u0631|\u0646\u0648\u0641\u0645\u0628\u0631|\u062F\u064A\u0633\u0645\u0628\u0631|' +
+    '\u0643\u0627\u0646\u0648\u0646 \u0627\u0644\u062B\u0627\u0646\u064A|\u0643\u0627\u0646\u0648\u0646 \u0627\u0644\u0623\u0648\u0644|\u0643\u0627\u0646\u0648\u0646 \u0627\u0644\u0627\u0648\u0644|\u0634\u0628\u0627\u0637|\u0622\u0630\u0627\u0631|\u0627\u0630\u0627\u0631|\u0646\u064A\u0633\u0627\u0646|\u0623\u064A\u0627\u0631|\u0627\u064A\u0627\u0631|\u062D\u0632\u064A\u0631\u0627\u0646|\u062A\u0645\u0648\u0632|\u0622\u0628|\u0623\u064A\u0644\u0648\u0644|\u0627\u064A\u0644\u0648\u0644|\u062A\u0634\u0631\u064A\u0646 \u0627\u0644\u0623\u0648\u0644|\u062A\u0634\u0631\u064A\u0646 \u0627\u0644\u0627\u0648\u0644|\u062A\u0634\u0631\u064A\u0646 \u0627\u0644\u062B\u0627\u0646\u064A';
+    'janvier|janv\\.?|f\u00E9vrier|fevrier|f\u00E9vr\\.?|mars|avril|mai|juin|juillet|juil\\.?|ao\u00FBt|aout|septembre|octobre|novembre|d\u00E9cembre|decembre|' +
     'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|' +
     '\u064A\u0646\u0627\u064A\u0631|\u0641\u0628\u0631\u0627\u064A\u0631|\u0645\u0627\u0631\u0633|\u0623\u0628\u0631\u064A\u0644|\u0627\u0628\u0631\u064A\u0644|\u0645\u0627\u064A\u0648|\u064A\u0648\u0646\u064A\u0648|\u064A\u0648\u0644\u064A\u0648|\u0623\u063A\u0633\u0637\u0633|\u0627\u063A\u0633\u0637\u0633|\u0633\u0628\u062A\u0645\u0628\u0631|\u0623\u0643\u062A\u0648\u0628\u0631|\u0627\u0643\u062A\u0648\u0628\u0631|\u0646\u0648\u0641\u0645\u0628\u0631|\u062F\u064A\u0633\u0645\u0628\u0631|' +
     '\u0643\u0627\u0646\u0648\u0646 \u0627\u0644\u062B\u0627\u0646\u064A|\u0643\u0627\u0646\u0648\u0646 \u0627\u0644\u0623\u0648\u0644|\u0643\u0627\u0646\u0648\u0646 \u0627\u0644\u0627\u0648\u0644|\u0634\u0628\u0627\u0637|\u0622\u0630\u0627\u0631|\u0627\u0630\u0627\u0631|\u0646\u064A\u0633\u0627\u0646|\u0623\u064A\u0627\u0631|\u0627\u064A\u0627\u0631|\u062D\u0632\u064A\u0631\u0627\u0646|\u062A\u0645\u0648\u0632|\u0622\u0628|\u0623\u064A\u0644\u0648\u0644|\u0627\u064A\u0644\u0648\u0644|\u062A\u0634\u0631\u064A\u0646 \u0627\u0644\u0623\u0648\u0644|\u062A\u0634\u0631\u064A\u0646 \u0627\u0644\u0627\u0648\u0644|\u062A\u0634\u0631\u064A\u0646 \u0627\u0644\u062B\u0627\u0646\u064A|' +
     'januari|februari|machi|aprili|mei|juni|julai|agosti|septemba|oktoba|novemba|desemba';
   const DATE = `(?:\\d{1,2}[\\/.\\-]\\d{1,2}[\\/.\\-]\\d{2,4}|\\d{4}[\\/.\\-]\\d{1,2}[\\/.\\-]\\d{1,2}|\\d{1,2}(?:st|nd|rd|th|er)?\\s+(?:of\\s+|de\\s+)?(?:${MONTHS})(?![\\p{L}])\\s*,?\\s+(?:de\\s+)?\\d{4}|(?:${MONTHS})(?![\\p{L}])\\s+\\d{1,2}(?:st|nd|rd|th)?,?\\s+\\d{4}|(?:19|20)\\d{2})(?![\\d\\/.\\-]\\d)`;
-  const DOB_CUE = '(?<![\\p{L}])(?:born|DOB|D\\.O\\.B\\.?|date of birth|birth date|birthdate|n\u00E9e?|nee|date de naissance|naissance|fecha de nacimiento|nacido|nacida|naci\u00F3|tarehe ya kuzaliwa|alizaliwa|\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0645\u064A\u0644\u0627\u062F|\u062A\u0627\u0631\u064A\u062E \u0645\u064A\u0644\u0627\u062F|\u0645\u0648\u0644\u0648\u062F\u0629|\u0645\u0648\u0644\u0648\u062F|\u0645\u0648\u0627\u0644\u064A\u062F|\u0648\u0644\u062F\u062A|\u0648\u0644\u062F|\u0627\u0644\u0648\u0644\u0627\u062F\u0629)(?![\\p{L}])';
+  const DOB_CUE = '(?<![\\p{L}])(?:born|DOB|D\\.O\\.B\\.?|date of birth|birth date|birthdate|n\u00E9e?|nee|date de naissance|naissance|\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0645\u064A\u0644\u0627\u062F|\u062A\u0627\u0631\u064A\u062E \u0645\u064A\u0644\u0627\u062F|\u0645\u0648\u0644\u0648\u062F\u0629|\u0645\u0648\u0644\u0648\u062F|\u0645\u0648\u0627\u0644\u064A\u062F|\u0648\u0644\u062F\u062A|\u0648\u0644\u062F|\u0627\u0644\u0648\u0644\u0627\u062F\u0629)(?![\\p{L}])';
   const DOB_RE = new RegExp(`${DOB_CUE}[\\s:\\-]*(?:(?:on|in|is|was|est|es|le|el|en|\u00E0|a|\u0641\u064A|\u0628\u062A\u0627\u0631\u064A\u062E|\u0639\u0627\u0645|\u0633\u0646\u0629)\\s+)?(${DATE})`, 'giu');
 
-  const ID_CUE_I = new RegExp('(?<![\\p{L}])(?:passport|passeport|pasaporte|pasipoti|national id|identity card|identity number|id card|id number|id no|carte d[\'\u2019]identit\u00E9|carte nationale d[\'\u2019]identit\u00E9|carte d[\'\u2019]identite|pi\u00E8ce d[\'\u2019]identit\u00E9|c\u00E9dula|cedula|kitambulisho|huduma namba|huduma|unhcr|civil registry|registre civil|registro civil|\u062C\u0648\u0627\u0632 \u0633\u0641\u0631|\u062C\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631|\u0627\u0644\u062C\u0648\u0627\u0632|\u0631\u0642\u0645 \u0627\u0644\u0647\u0648\u064A\u0629|\u0631\u0642\u0645 \u0627\u0644\u062C\u0648\u0627\u0632|\u0628\u0637\u0627\u0642\u0629 \u0627\u0644\u0647\u0648\u064A\u0629|\u0627\u0644\u0647\u0648\u064A\u0629|\u0647\u0648\u064A\u0629|\u0631\u0642\u0645 \u0627\u0644\u0642\u064A\u062F|\u0631\u0642\u0645 \u0627\u0644\u0633\u062C\u0644|\u0633\u062C\u0644 \u0645\u062F\u0646\u064A|\u0625\u062E\u0631\u0627\u062C \u0642\u064A\u062F|\u0627\u062E\u0631\u0627\u062C \u0642\u064A\u062F)(?![\\p{L}])', 'giu');
-  const ID_CUE_S = /(?<![\p{L}])(?:ID|I\.D\.|NID|CNI|CNIB|DNI|NIT|C\.C\.|CC)(?![\p{L}])/gu;
+  const ID_CUE_I = new RegExp('(?<![\\p{L}])(?:passport|passeport|national id|identity card|identity number|id card|id number|id no|carte d[\'\u2019]identit\u00E9|carte nationale d[\'\u2019]identit\u00E9|carte d[\'\u2019]identite|pi\u00E8ce d[\'\u2019]identit\u00E9|civil registry|civil register|registre civil|\u062C\u0648\u0627\u0632 \u0633\u0641\u0631|\u062C\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631|\u0627\u0644\u062C\u0648\u0627\u0632|\u0631\u0642\u0645 \u0627\u0644\u0647\u0648\u064A\u0629|\u0631\u0642\u0645 \u0627\u0644\u062C\u0648\u0627\u0632|\u0628\u0637\u0627\u0642\u0629 \u0627\u0644\u0647\u0648\u064A\u0629|\u0627\u0644\u0647\u0648\u064A\u0629|\u0647\u0648\u064A\u0629|\u0631\u0642\u0645 \u0627\u0644\u0642\u064A\u062F|\u0631\u0642\u0645 \u0627\u0644\u0633\u062C\u0644|\u0633\u062C\u0644 \u0645\u062F\u0646\u064A|\u0625\u062E\u0631\u0627\u062C \u0642\u064A\u062F|\u0627\u062E\u0631\u0627\u062C \u0642\u064A\u062F)(?![\\p{L}])', 'giu');
+  const ID_CUE_S = /(?<![\p{L}])(?:ID|I\.D\.|NID|CNI)(?![\p{L}])/gu;
   const ID_SEP = /(?:[\s:#.\-\u2013]|n\u00B0|n\u00BA|number|num\u00E9ro|numero|n\u00FAmero|num\.?|no\.?|\u0631\u0642\u0645|was|as|is|est|es|de|del)*/iuy;
   const ID_TOKEN = /(?:[A-Z]{1,3}[ \-]?)?\d[\dA-Z.\-]{3,15}[\dA-Z]/uy;
 
   const PHONE_CAND = /(?<![\p{L}\p{N}_\/])\+?\d[\d\s().\-]{4,18}\d(?![\p{L}\p{N}_\/])/gu;
-  const PHONE_CUE = /(?:tel|t\u00E9l|phone|mobile|cell|whatsapp|call|contact|reachable|joignable|appeler|llamar|celular|tel\u00E9fono|telefono|simu|namba|\u0647\u0627\u062A\u0641|\u0647\u0627\u062A\u0641\u0647|\u0647\u0627\u062A\u0641\u0647\u0627|\u062C\u0648\u0627\u0644|\u062C\u0648\u0627\u0644\u0647\u0627|\u0645\u0648\u0628\u0627\u064A\u0644|\u062A\u0644\u0641\u0648\u0646|\u0648\u0627\u062A\u0633\u0627\u0628)[^\d\n]{0,18}$/iu;
+  const PHONE_CUE = /(?:tel|t\u00E9l|phone|mobile|cell|whatsapp|call|contact|reachable|joignable|appeler|\u0647\u0627\u062A\u0641|\u0647\u0627\u062A\u0641\u0647|\u0647\u0627\u062A\u0641\u0647\u0627|\u062C\u0648\u0627\u0644|\u062C\u0648\u0627\u0644\u0647\u0627|\u0645\u0648\u0628\u0627\u064A\u0644|\u062A\u0644\u0641\u0648\u0646|\u0648\u0627\u062A\u0633\u0627\u0628)[^\d\n]{0,18}$/iu;
 
   const IBAN_LEN = { LB: 28, FR: 27, GB: 22, DE: 22, ES: 24, JO: 30, AE: 23, SA: 24, IQ: 23, EG: 29, IT: 27, NL: 18, BE: 16, CH: 21, TR: 26, PS: 29, KW: 30, QA: 29, BH: 22 };
   function ibanOk(s) {
@@ -318,18 +332,16 @@
     return rem === 1;
   }
 
+  // Lebanese numbers, local and international. Anything with + or 00 and 8-15 digits is accepted.
   function phoneOk(digits, plus, cued) {
     let d = digits;
     if (plus || d.startsWith('00')) {
       if (d.startsWith('00')) d = d.slice(2);
       return d.length >= 8 && d.length <= 15;
     }
-    if (/^0(?:3|70|71|76|78|79|81)\d{6}$/.test(d)) return true;     // Lebanon mobile, with 0
-    if (/^(?:3|70|71|76|78|79|81)\d{6}$/.test(d)) return true;      // Lebanon mobile, without 0
-    if (/^0[1-9]\d{6}$/.test(d)) return true;                       // Lebanon landline
-    if (/^0[17]\d{8}$/.test(d)) return true;                        // Kenya
-    if (/^[17]\d{8}$/.test(d) && cued) return true;
-    if (/^3\d{9}$/.test(d)) return true;                            // Colombia mobile
+    if (/^0(?:3|70|71|76|78|79|81)\d{6}$/.test(d)) return true;     // mobile, with 0
+    if (/^(?:3|70|71|76|78|79|81)\d{6}$/.test(d)) return true;      // mobile, without 0
+    if (/^0[1-9]\d{6}$/.test(d)) return true;                       // landline
     return cued && d.length >= 7 && d.length <= 15;
   }
 
@@ -354,7 +366,7 @@
     }
 
     // case / registration numbers (fictional format)
-    const cs = /(?<![A-Za-z0-9])(?:NBR-(?:LB|KE|CO)-\d{4}-\d{4,7}|HH-(?:LB|KE|CO)-\d{4,6})(?![A-Za-z0-9])/gi;
+    const cs = /(?<![A-Za-z0-9])(?:CS|HL|FAM)-\d{4}-\d{4,6}(?![A-Za-z0-9])/gi;
     while ((m = cs.exec(N))) spans.push({ start: m.index, end: m.index + m[0].length, type: 'CASE', source: 'pattern' });
 
     // date of birth, only after a cue
@@ -407,13 +419,14 @@
 
   // ---------- resolve overlaps ----------
 
-  function mergePersons(spans) {
+  function mergePersons(spans, text) {
     const ps = spans.filter((s) => s.type === 'PERSON').sort((a, b) => a.start - b.start || b.end - a.end);
     const rest = spans.filter((s) => s.type !== 'PERSON');
     const merged = [];
     for (const s of ps) {
       const last = merged[merged.length - 1];
-      if (last && s.start <= last.end) {
+      // overlapping, or separated by one space or hyphen: "Jean-Pierre" + "Abou Jaoude" is one name
+      if (last && (s.start <= last.end || (s.start === last.end + 1 && /[ -]/.test(text[last.end])))) {
         last.end = Math.max(last.end, s.end);
         if (s.source === 'user') last.source = 'user';
       } else merged.push({ ...s });
@@ -446,7 +459,7 @@
     for (const sp of persons) {
       for (const t of tokens) {
         if (t.s < sp.start || t.e > sp.end || t.kind === 'conn' || t.kind === 'amb') continue;
-        if (t.norm.length < 3 || (t.ar ? STOP_AR.has(t.norm) : isStopLat(t))) continue;
+        if (t.norm.length < 3 || (t.ar ? isStopAr(t) : isStopLat(t))) continue;
         comps.add(t.norm);
       }
     }
@@ -474,16 +487,16 @@
 
     patternSpans(text, N, spans);
     cuePersons(text, tokens, spans);
-    gazetteerRuns(text, tokens, spans);
+    if (!opts.noGazetteer) gazetteerRuns(text, tokens, spans);
 
     if (opts.strict) strictSpans(text, tokens, spans);
 
     for (const name of opts.extraNames || []) {
       for (const [s, e] of termMatches(text, tokens, name)) spans.push({ start: s, end: e, type: 'PERSON', source: 'user' });
     }
-    spans = mergePersons(spans);
+    spans = mergePersons(spans, text);
     spans = spans.concat(repeatedNames(text, tokens, spans));
-    spans = mergePersons(spans);
+    spans = mergePersons(spans, text);
 
     const manual = [];
     for (const mm of opts.manual || []) {

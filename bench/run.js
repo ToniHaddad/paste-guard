@@ -63,6 +63,7 @@ function report(showMisses) {
   const notes = build();
   const rows = score(notes);
   const strictRows = score(notes, { strict: true });
+  const cueRows = score(notes, { noGazetteer: true });
   const out = [];
   const total = (f) => summarise(rows.filter(f), () => 'ALL').ALL;
   out.push(`notes: ${notes.length} (${['en', 'fr', 'ar'].map((l) => l + ' ' + notes.filter((n) => n.lang === l).length).join(', ')}), labelled entities: ${rows.filter((r) => r.kind === 'gold').length}`);
@@ -86,6 +87,9 @@ function report(showMisses) {
   out.push(table('STRICT MODE (also redact every capitalised word that does not start a sentence), ALL TYPES, BY LANGUAGE', strictAll, ['en', 'fr', 'ar']));
   out.push('');
   out.push(table('STRICT MODE, PERSON ONLY, STRESS SPLIT', strictPerson, ['en stress', 'fr stress', 'ar stress']));
+  out.push('');
+  const cueOnly = summarise(cueRows.filter((r) => r.e.type === 'PERSON'), (r) => r.note.split);
+  out.push(table('NAME LIST SWITCHED OFF (cues, repeat finding and patterns only), PERSON ONLY, BY SPLIT', cueOnly, ['dev', 'heldout', 'stress']));
   if (showMisses) {
     out.push('');
     out.push('MISSED (leaks):');

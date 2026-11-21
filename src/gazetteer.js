@@ -1,163 +1,145 @@
 /*
  * Bundled name lists. Plain data, no logic.
  *
- * These are common given and family names, written from general knowledge
- * for five language communities. They are NOT a census: many real names are
- * missing, and that is the main way this tool can leak a name. See README.
+ * Common given and family names of Lebanon and the region (Lebanese, Syrian,
+ * Palestinian, Iraqi and other Arabic names, many Christian and Muslim
+ * names), in Latin spellings and in Arabic script, plus French given names
+ * that are common in Lebanon and a few English ones. Written from general
+ * knowledge, NOT from any real register. It is not a census: many real names
+ * are missing, and that is the main way this tool can leak a name. See README.
  *
- * `ambiguous` lists words that are also ordinary words. They only count as a
- * name next to another name or after a cue (Mr, Mme, السيد, "son of" ...).
+ * `ambiguousAr` lists words that are also ordinary words. They only count as
+ * a name next to another name or after a cue (Mr, Mme, السيد, "son of" ...).
  */
 (function () {
   'use strict';
 
   const en = {
-    given: `James John Robert Michael William David Richard Joseph Thomas Charles Christopher Daniel Matthew Anthony
-      Donald Steven Paul Andrew Joshua Kenneth Kevin Brian George Edward Ronald Timothy Jason Jeffrey Ryan Jacob
-      Gary Nicholas Eric Jonathan Stephen Larry Justin Scott Brandon Benjamin Samuel Gregory Alexander Patrick
-      Frank Raymond Jack Dennis Jerry Tyler Aaron Henry Peter Douglas Nathan Peter Adam Zachary Walter Kyle Harold
-      Mary Patricia Jennifer Linda Elizabeth Barbara Susan Jessica Sarah Karen Nancy Lisa Betty Margaret Sandra
-      Ashley Kimberly Emily Donna Michelle Carol Amanda Dorothy Melissa Deborah Stephanie Rebecca Sharon Laura
-      Cynthia Kathleen Amy Angela Shirley Anna Brenda Pamela Emma Nicole Helen Samantha Katherine Christine
-      Debra Rachel Carolyn Janet Catherine Maria Heather Diane Olivia Julie Joyce Victoria Kelly Christina
-      Lauren Joan Evelyn Judith Megan Cheryl Andrea Hannah Jacqueline Martha Gloria Teresa Sara Janice Julia
-      Marie Madison Abigail Alice Judy Sophia Rose Denise Beverly Danielle Theresa Marilyn Diana Brittany
-      Natalie Charlotte Kayla Alexis Lori Ruth Eleanor Naomi Esther Leah`.split(/\s+/),
-    family: `Smith Johnson Williams Jones Taylor Davies Wilson Evans Thomas Roberts Walker Wright Robinson Thompson
-      White Hughes Edwards Hall Wood Harris Clarke Jackson Clark Turner Hill Moore Martin Lee Allen Mitchell
-      Campbell Anderson Scott Morgan Cooper Ward Murphy Bailey Bell Carter Collins Phillips Parker Patel
-      Richardson Cook Watson Brooks Kelly Henderson Reid Fraser Stewart Ross Murray Graham Hamilton Gordon`.split(/\s+/),
+    given: `Tony Joe Johnny Michael Peter John James David Daniel Paul Mark Charles George Edward Robert William
+      Anthony Joseph Samuel Alexander Patrick Andrew Thomas Kevin Eric Ryan
+      Mary Sarah Sara Julia Rose Susan Nancy Grace Helen Nicole Linda Anna Emma Maria Christine Rachel Rebecca
+      Jessica Lisa Laura Julie Carol Diana Elizabeth Joyce Sandra Angela Natalie`.split(/\s+/),
+    family: [],
   };
 
   const fr = {
-    given: `Jean Pierre Michel Philippe Alain Patrick Nicolas Christophe Laurent Daniel Éric Eric Stéphane Pascal
-      Thierry Olivier Sébastien Julien Maxime Mathieu Antoine Guillaume Alexandre Thomas Vincent Bruno Gérard
-      Claude Jacques André Louis François Henri Marcel Bernard Yves Dominique Frédéric Hugo Lucas Théo Gabriel
-      Marie Nathalie Isabelle Sylvie Catherine Françoise Monique Christine Martine Nicole Sophie Valérie Brigitte
-      Anne Hélène Camille Chloé Léa Manon Emma Inès Sarah Julie Laure Céline Aurélie Véronique Jeanne 
-       Simone Colette Josette Danielle Cécile Mathilde Élodie Océane Margaux Pauline Clémence Esther
-      Jean-Claude Jean-Pierre Jean-Paul Marie-Claire Anne-Marie  Aïcha Fatou Mamadou Ousmane Moussa
-      Ibrahima Aminata Awa Mariama Kadiatou  Pascaline Fabrice Didier`.split(/\s+/),
-    family: `Martin Bernard Dubois Thomas Robert Richard Petit Durand Leroy Moreau Simon Laurent Lefebvre Michel
-      Garcia David Bertrand Roux Vincent Fournier Morel Girard André Lefèvre Mercier Dupont Lambert Bonnet
-      François Martinez Legrand Garnier Faure Rousseau Blanchard Guérin Muller Henry Roussel Nicolas Perrin
-      Morin Mathieu Clément Gauthier Dumont Lopez Fontaine Chevalier Robin Masson Sanchez Gérard Nguyen Boyer
-      Traoré Diallo Camara Konaté Ouédraogo Sow Ndiaye Diop Kouassi   `.split(/\s+/),
-  };
-
-  const sw = {
-    given: `Juma Hamisi Rajabu Saidi Bakari Salim Omari Athumani Mussa Baraka Tumaini Upendo Furaha Neema Zawadi
-      Rehema Imani Zuhura Fatuma Halima Mwanaisha Asha Amina Salma Mariam Zainabu Hawa Mwajuma Grace Faraja
-      Wanjiru Njeri Wambui Wangari Muthoni Mumbi Nyambura Wairimu Njoki Kamau Mwangi Kariuki Njoroge Kimani
-      Maina Githinji Gitau Mutua Musyoka Kioko Kyalo Mwende Mutheu Otieno Odhiambo Onyango Omondi Ochieng
-      Achieng Atieno Akinyi Adhiambo Awuor Anyango Apiyo Wafula Wekesa Barasa Simiyu Naliaka Nekesa Nafula
-      Kiprono Kipchoge Kiptoo Kibet Kipkemboi Cheruiyot Chebet Jepchirchir Jeptoo Chepkoech Kosgei Rotich
-      Kiplagat Kimutai Korir Langat Ruto Tanui Mwalimu Wekhomba Peter Samuel James Joseph John Esther Ruth
-       Nyokabi Wacera Wanjiku Waithera Waweru Mbugua Macharia Kamande Gathoni`.split(/\s+/),
-    family: `Mwangi Kamau Otieno Odhiambo Onyango Omondi Ochieng Njoroge Kariuki Kimani Maina Mutua Wafula
-      Wekesa Barasa Kiprono Kipchoge Cheruiyot Korir Langat Rotich Tanui Mbugua Macharia Waweru Gitau Githinji
-      Kilonzo Mutiso Musau Nzioka Mulwa Wambua Ndung'u Karanja Kinyanjui Mugo Kiarie Ngugi Nyaga Mwaura
-      Juma Hassan Ali Salim Mohamed Abdi Hussein Warsame Farah Omar`.split(/\s+/),
-  };
-
-  const es = {
-    given: `José Jose Juan Luis Carlos Jorge Miguel Pedro Pablo Fernando Alejandro Andrés Andres Santiago Sebastián
-      Sebastian Daniel David Diego Javier Manuel Francisco Antonio Ricardo Roberto Eduardo Rafael Mauricio
-      Camilo Felipe Gustavo Héctor Hector Hernán Iván Ivan Julián Julian Mario Nelson Óscar Oscar Orlando Rodrigo
-      Wilson Edwin Jhon Yeison Brayan Alexander Cristian Fabián Fabian Germán German Harold Hugo Jairo Jaime
-      María Maria Ana Sofía Sofia Camila Valentina Isabella Daniela Paola Laura Carolina Natalia Luz Marta Martha
-      Yolanda Gloria Rosa Elena Isabel Claudia Liliana Sandra Patricia Nelly Diana Adriana Alejandra Angélica
-      Beatriz Blanca Cecilia Consuelo Dolores Emilia Esperanza Fanny Gladys Inés Ines Jenny Johana Karen Leidy
-      Lucía Lucia Luisa Marcela Margarita Mercedes Mónica Monica Nancy Nidia Olga Piedad Pilar Ramona Sonia Teresa
-      Tatiana Viviana Yamile Yesica Zulma Ximena Catalina Lorena Milena Rocío Rocio`.split(/\s+/),
-    family: `García Garcia Rodríguez Rodriguez Martínez Martinez López Lopez González Gonzalez Pérez Perez Sánchez
-      Sanchez Ramírez Ramirez Torres Flores Rivera Gómez Gomez Díaz Diaz Hernández Hernandez Vargas Castro Moreno
-      Rojas Ortiz Jiménez Jimenez Muñoz Munoz Ruiz Álvarez Alvarez Romero Suárez Suarez Herrera Medina Aguirre
-      Cárdenas Cardenas Cortés Cortes Mejía Mejia Restrepo Arango Ospina Londoño Londono Valencia Gutiérrez
-      Gutierrez Ramos Mendoza Guerrero Morales Silva Castillo Salazar Cruz Reyes Navarro Ríos Rios Parra Peña Pena
-      Cano Duque Giraldo Zapata Quintero Bedoya Ocampo Marín Marin Osorio Franco Acosta Sierra Pineda`.split(/\s+/),
+    // French given names common among Lebanese families (mostly Christian communities)
+    given: `Jean Pierre Paul Michel Georges Joseph Antoine Elie Élie Charles Marc Philippe Pascal Jacques Claude Roger
+      Maurice Fernand Gaby Camille Louis André Henri François Nicolas Alexandre Daniel David Samuel Rodolphe Serge
+      Gérard Jules Emile Émile Edmond Edgar Raymond Roland Rémy Sébastien Julien Christophe Thierry Olivier
+      Marie Rita Nathalie Joëlle Joelle Sophie Hélène Helene Julie Céline Celine Karine Yvonne Odette Monique
+      Simone Mireille Rose Rosette Thérèse Therese Léa Lea Sylvie Josiane Jocelyne Liliane Lilian Christelle
+      Madeleine Antoinette Georgette Gisèle Gisele Lucie Lucienne Suzanne Hélène Aline Anne Isabelle Catherine
+      Danielle Nadine Carole Caroline Cécile Cecile Claudine Colette Corinne Denise Émilie Emilie Estelle Françoise
+      Ghislaine Irène Jeanne Laure Laurence Lorraine Magali Marguerite Martine Michèle Michele Muriel Nicole
+      Pauline Renée Sandrine Solange Stéphanie Valérie Véronique Vanessa Yolande Aïcha Inès Maya
+      Jean-Claude Jean-Pierre Jean-Paul Jean-Marc Jean-Louis Jean-François Marie-Claire Marie-Thérèse Anne-Marie
+      Marie-Rose Marie-Louise Marie-José Pierre-Antoine Paul-Henri`.split(/\s+/),
+    family: [],
   };
 
   const ar = {
     // Latin transliterations. Spelling varies a lot, so common variants are listed.
-    given: `Ahmad Ahmed Mohammad Mohamad Muhammad Mohamed Mohammed Mahmoud Mahmud Hassan Hasan Hussein Hussain Husein
-      Ali Omar Umar Khaled Khalid Youssef Yousef Yusuf Joseph Ibrahim Ismail Ismael Mustafa Mostafa Moustafa
-      Abdallah Abdullah Abdulla Abdelrahman Abdulrahman Abdelkader Abdelaziz Abdulaziz Abdelnasser Samir Samer
-      Sami Nabil Walid Waleed Karim Kareem Tarek Tariq Hadi Hani Hanan Hanane Rima Rania Layla Leila Laila Fatima
-      Fatme Fatmeh Zeinab Zainab Zaynab Mariam Maryam Mona Nour Noura Nora Salma Sara Sarah Amal Hiba Dalal Dina
-      Dima Rasha Ghada Huda Hoda Jamila Jamal Kamal Majed Maher Marwan Bilal Rami Ramzi Riad Rabih Elie Elias
-      Georges George Antoine Michel Charbel Tony Nadine Nada Lina  Carla Joumana Samira Souad Suad Wafaa
-      Hind Ayman Adnan Bassam Bassel Fadi Fares Firas Hamza Hamad Hamid Hussam Imad Iyad Jad Jihad Louay Malek
-      Mazen Nizar Osama Radwan Raed Saeed Said Salim Salah Sana Sanaa Shadi Sultan Wael Yasmin Yasmine Zahra
-      Zeina Zein Ola Reem Rim Hala Houda Mireille Rabab Siham Khadija Khadiga Aisha Aicha Asma Nawal Najwa
-      Manal Maya Mayssa Ziad Ziyad Zaher Anwar Hussam  Mohsen Nasser Nassim Naji Hisham Hicham Rashid
-      Rachid Rafic Rafik Raymond Ramez Pascal  Elias Ilyas Issam Jawad Jaber Kassem Qassem  Lama
-      Joelle Rita Rana  Myriam  Nisrine Randa Rouba Sawsan Sylvana Tala Yara Yasser Yaser Zakaria
-      Ziyad Abdel Abdul Bachir Bashir Basil Bahaa Chadi Cynthia Dani Edgar Elham Eman Iman Farah Fouad
-      Ghaith Habib Hazem Hosni Jamil Lubna Mahdi Mazin Mona Mouna Muna Nabih Nadim Nadia Naeem Rayan Ranim
-      Safaa Safa Sahar Salam Samia Sawsan Selim Sleiman Suleiman Taleb Tamer Tamara Wissam Wajdi Yahya Yehia
-      Zouheir Zuhair Zouhair Maha Mahasen Marwa Rawan Roula Sally Samar Shireen Sirine Soha Souha Yomna`.split(/\s+/),
-    family: `Khoury Haddad Saab Nasser Nassar Hariri Mansour Sleiman Slaiman Hamdan Hamade  Hamdi Khalil Issa
-      Ghanem Rahme Aoun Geagea Frem Karam Chidiac Daher Daou Fakhoury Hakim Hajj Hijazi Jaber Kassem Kassab Kanaan
-      Mouawad Moussa Mrad Najjar Nakhle Obeid Rizk Sabbagh Saliba Salameh Sayegh Shami Tannous Yazbeck Zein
-      Zahran Masri Halabi Hourani Qassem Darwish Abboud Amin Ayoub Bakri Barakat Chehab Dagher Eid Fares Ghosn
-      Harb Hayek Hobeika Jabbour Khatib Maalouf Matar Nahas Osman Rahal Sfeir Shehadeh Srour Taha Tawil Younes
-      Yassine Jundi Hamwi Homsi Hamoui Kurdi Turk Bitar   Salam    Ghazal Zaarour
-      Moawad Gemayel  Frangieh Joumblatt Arslan Sader Berri Mikati Salhab Tohme Tueni Daccache Abi Nader
-      Khoder Hussein Ahmad Mohammad Ali Hassan Mahmoud Abdallah Ibrahim Youssef Omar Suleiman Said Salim Mourad
-      Naccache Nehme Semaan  Awad Bou Zakhour Beydoun Ramadan Shaaban  Fawaz Charafeddine Mcheik
-      Chaaban Zaidan Zeidan Kobeissi Merhi Mekdad Moukalled Nouri Noureddine Orfali Rifai Safadi Sidani`.split(/\s+/),
+    given: `Ahmad Ahmed Ahmat Abbas Abdallah Abdullah Abdulla Abdelkader Abdelaziz Abdulaziz Abdelnasser Abdelrahman
+      Abdulrahman Abdelhamid Abdelfattah Abdelsalam Abdelmajid Abdulkarim Abdelkarim Abdelwahab Abdelrazak Abdellatif
+      Rahman Kader Qader Aziz Hamid Majid Wahab Salam Razzak Ghani Fattah Samad Basset Halim Latif Jalil Khalek Moneim Nasser
+      Abed Adel Adnan Ahed Akram Alaa Ali Amer Ameen Amin Amir Anas Anis Antonios Ayman Ayoub Bachir Bashir Badih
+      Bahaa Bahij Bashar Bassam Bassel Basil Bilal Boutros Chady Chadi Chafic Chucri Chukri Dani Elias Ilyas Emad Fadi Fady
+      Fares Farid Farouk Fawzi Fawzy Firas Fouad Ghazi Ghassan Habib Hadi Hady Hamad Hamdi Hamza Hani Hasan Hassan
+      Hassane Hatem Hazem Hicham Hisham Hosni Hussam Hussein Hussain Husein Imad Issam Iyad Jaber Jad Jamal Jamil Jawad
+      Jihad Joumaa Kamal Karam Karim Kareem Kassem Qassem Khaled Khalid Khalil Khodr Louay Maher Majed Malek Mansour Marwan
+      Maroun Mazen Mhamad Milad Mohamad Mohammad Mohammed Mohamed Muhammad Mohsen Mostafa Mustafa Moustafa Moussa Mousa
+      Munir Nabil Nabih Nader Nadim Naim Najib Naji Nasri Nasser Nassim Nazih Nizar Omar Umar Osama Radwan Rabih Rachid
+      Rashid Rafic Rafik Raed Rami Ramy Ramzi Ramez Raja Rayan Rida Riad Said Saeed Salah Salem Salim Selim Salman Samer
+      Sami Samir Sleiman Suleiman Souheil Suhail Sultan Tamer Tarek Tariq Taleb Toufic Tawfik Wadih Wael Waleed Walid
+      Wassim Wissam Yahya Yehia Yasser Yaser Youssef Yousef Yusuf Zaher Zakaria Zeid Zeyad Ziad Ziyad Zouheir Zuhair
+      Hussam Mahdi Mazin Nouhad Nehme Naseem Raafat Rizk Sobhi Sobhy Shawki Shaker Shafic Sharif Sherif Tayseer
+      Abir Aicha Aisha Alia Amal Amani Amina Asma Asmaa Bahia Bassima Batoul Dalal Dalia Dalya Dima Dina Doha Elham Farah
+      Fatima Fatme Fatmeh Fadia Ghada Ghina Hala Hanadi Hanan Hanane Hayat Hiba Hind Hoda Houda Huda Ibtisam Ikram Iman
+      Eman Inaya Jamila Joumana Khadija Khadiga Lama Layla Leila Laila Lina Lubna Maha Manal Mariam Maryam Marwa Maya
+      Mayssa Mona Mouna Muna Nada Nadia Najwa Nawal Nayla Nisrine Nour Noura Nora Rabab Randa Rania Rasha Rawan Rayya
+      Reem Rim Rima Rola Roula Ruba Rouba Salma Samar Samia Samira Sana Sanaa Sawsan Sirine Siham Souad Suad Soha
+      Souha Tamara Tala Wafaa Wafa Yara Yasmin Yasmine Zahra Zainab Zeinab Zaynab Zeina Zakia Zouheira Hadia Hanna Bushra
+      Fayrouz Fairouz Ranim Rouaa Sahar Salwa Sawsan Shireen Siham Widad Zahia Zeinat Najat Najla Nahla Nuha Nisreen
+      Hayfa Haifa Ola Rasha Rahaf Rouba Raghda Raghad Ruqaya Sumaya Suzan Thuraya Wiam Wijdan Yomna Yosra Joud Judy Lourdes`.split(/\s+/),
+    family: `Abboud Abdallah Abdelnour Abdo Aboud Achkar Atallah Ayoub Azar Azzi Bakri Barakat Basha Bassil
+      Beydoun Bitar Boustany Boutros Chaaban Chahine Chamoun Chamseddine Chebli Chehab Chehade Chehadeh
+      Chidiac Choueiri Daher Dagher Daou Daoud Darwish Dbouk Eid Fadlallah Fakhoury Farah Fares Farhat Fawaz Frem Frangieh
+      Gebran Jebran Geagea Gemayel Ghanem Ghosn Gerges Hachem Hage Hajj Hakim Hamade Hamadeh Hammoud Hamdan Hamdi Harb
+      Hariri Hassan Hawi Hayek Hobeika Hoballah Hoss Hourani Hussein Issa Itani Jaber Jabbour Jaafar Jammal Jarrah Jbeily
+      Joumblatt Kanaan Karam Kassab Kassem Kfoury Khalaf Khalil Khatib Khoder Khoury Khouri Kobeissi Lahoud Maalouf Mahfoud
+      Makhlouf Mansour Mansouri Mattar Matar Mawla Merhi Mikati Moawad Mouawad Mourad Moussa Mrad Murr Nahas Najjar
+      Nakhle Naccache Nasr Nasrallah Nasser Nassar Nehme Nouri Obeid Osman Rahal Rahme Raad Ramadan Rizk Rifai Saab Saadeh
+      Sabbagh Sabra Sader Safadi Sakr Saleh Salameh Salem Saliba Salloum Sarkis Sayegh Semaan Sfeir Shaar Shaito
+      Shehadeh Slaiman Sleiman Soubra Srour Tabet Tannous Tawil Tarabay Tohme Tueni Yacoub Yaacoub Yammine Yazbeck Younes Zahar
+      Zaidan Zeidan Zakhour Zein Zoghbi Zeineddine Hamieh Hammoud Fneish Jaroudi Kaadan Haidar Hijazi Halabi Homsi Hamwi
+      Masri Kurdi Zoubi Shami Dayoub Hanna Hallak Dimashqi Rustom Nahle Jarjour Kordahi Karameh Salhab Mcheik Mchantaf
+      Harati Hakim Hatoum Hatoum Ismail Itany Tarraf Merheb Matta Bsat Daccache Saadeh Yammine Eddé Edde Aoun Atiyeh
+      Bazzi Baydoun Berjawi Chalhoub Chedid Chammas Dahdah Dakdouk Doumit Ezzedine Faour Ghannam Haddad Hadad Hamze
+      Hashem Karameh Kayrouz Kazzi Khazen Lteif Maroun Moghabghab Moukarzel Nader Nakad Nemer Rasamny Raphael Sawaya
+      Skaff Succar Tabbal Tarazi Tayyar Tawk Wehbe Wehbi Yassin Zakaria Ziadeh Zoueihid Din Eddine Eldin Abidine`.split(/\s+/),
     // Arabic script. Family names are written without the leading definite article.
-    givenAr: `أحمد محمد محمود حسن حسين علي عمر خالد يوسف إبراهيم ابراهيم إسماعيل اسماعيل مصطفى عبدالله عبدالرحمن
-      عبدالقادر عبدالعزيز عبدالناصر سمير سامر سامي نبيل وليد كريم طارق هادي هاني حنان ريما رانيا ليلى فاطمة
-      زينب مريم منى نور نورا سلمى سارة أمل هبة دلال دينا ديما رشا غادة هدى جميلة جمال كمال ماجد ماهر مروان
-      بلال رامي رمزي رياض ربيع إيلي الياس إلياس جورج جوزيف أنطوان ميشال شربل نادين ندى لينا  كارلا جمانة
-      سميرة سعاد وفاء هند أيمن عدنان بسام باسل فادي فارس فراس حمزة حمد حامد حسام عماد إياد جهاد لؤي مالك مازن
-      نزار أسامة رائد سعيد سالم مالك صلاح سناء سناء شادي سلطان وائل ياسمين زهراء زينة ريم هلا هالة خديجة عائشة
-      أسماء نوال نجوى منال مايا ميساء زياد زاهر أنور  محسن ناصر نسيم ناجي هشام راشد رفيق رفيق ريمون رامز
-      باسكال  عصام جواد جابر قاسم  لمى جويل ريتا رنا  ميريام  نسرين راندا ربى سوسن سيلفانا
-      تالا يارا ياسر زكريا بشير بهاء شادي سيندي إدغار ايمان إيمان فرح فؤاد غيث حبيب حازم جميل لبنى مهدي
-      نبيه نديم نادية نعيم ريان صفاء سحر سلام سامية سليم سليمان طالب تامر تمارا وسام يحيى زهير ماهر مها
-      مروة روان روزا سالي سمر شيرين سيرين سهى سها يمنى مريم`.split(/\s+/),
-    familyAr: `خوري حداد صعب ناصر نصار حريري منصور سليمان حمدان حمادة  خليل عيسى غانم رحمة عون جعجع فرم كرم
-      شيدياق ضاهر داود فاخوري حكيم حاج حجازي جابر قاسم كساب كنعان معوض موسى مراد نجار ناكوزي عبيد رزق
-      صباغ صليبا سلامة صايغ شامي طنوس يزبك زين زهران مصري حلبي حوراني درويش عبود أمين ايوب أيوب بكري
-      بركات شهاب دغر عيد فارس غصن حرب حايك هبيقة جبور خطيب معلوف مطر نحاس عثمان رحال صفير شحادة سرور
-      طه طويل يونس ياسين جندي حموي حمصي كردي تركي بيطار   سلام   غزال زعرور جميل
-      شمعون فرنجية جنبلاط أرسلان صدر بري ميقاتي صلحب طعمة تويني دكاش خضر حسين احمد أحمد محمد علي حسن محمود
-      عبدالله ابراهيم إبراهيم يوسف عمر سعيد سالم مالك مراد نقاش نعمة سمعان سركيس عواد ابو زخور بيضون رمضان
-      شعبان فواز شرف الدين مشيك زيدان قبيسي مرعي مقداد مقدّد نوري رفاعي صافدي صيداني`.split(/\s+/),
+    givenAr: `أحمد احمد عباس عبدالله عبدالقادر عبدالعزيز عبدالناصر عبدالرحمن عبدالحميد عبدالفتاح عبدالسلام عبدالمجيد عبدالكريم
+      عبدالوهاب عبداللطيف عبدالرزاق عابد عادل عدنان أكرم اكرم علاء علي عامر أمين امين أمير امير أنس أنيس أنطونيوس أيمن
+      أيوب ايوب بشير بديع بهاء بهيج بشار بسام باسل بلال بطرس شادي شفيق شكري داني إلياس الياس إيلي ايلي عماد فادي فارس
+      فريد فاروق فوزي فراس فؤاد غازي غسان حبيب هادي حمد حمدي حمزة هاني حسن حسين حاتم حازم هشام حسني حسام إبراهيم
+      ابراهيم إسماعيل اسماعيل عصام إياد اياد جابر جاد جمال جميل جواد جهاد جمعة كمال كرم كريم قاسم خالد خليل خضر لؤي
+      ماهر ماجد مالك منصور مروان مارون مازن محمد محمود مصطفى موسى منير نبيل نبيه نادر نديم نعيم نجيب ناجي ناصر نسيم
+      نزيه نزار عمر أسامة اسامة رضوان ربيع رشيد رفيق رائد رامي رمزي رامز رجا ريان رضا رياض سعيد سالم صلاح سليم سلمان
+      سامر سامي سمير سليمان سهيل سلطان تامر طارق طالب توفيق وديع وائل وليد وسيم وسام يحيى ياسر يوسف زاهر زكريا زيد زياد
+      زهير مهدي مازن نهاد نعمة رافت صبحي شوقي شاكر شريف تيسير فرح
+      عبير عائشة عالية أمل امل أماني امينة أسماء بهية بسيمة بتول دلال داليا دينا ديما دعاء الهام فرح فاطمة فادية غادة
+      غنى هلا هنادي حنان هيام هبة هند هدى هدى هيفاء إبتسام ابتسام إكرام اكرام إيمان ايمان جميلة جمانة جومانة خديجة لمى
+      ليلى لينا لبنى مها منال مريم مروة مايا ميساء منى مي ندى نادين نادية نجوى نوال نايلة نسرين نور نورا ربى رندة راندا
+      رانيا رشا روان ريم ريما رولا رلى روبا رباب سلمى سمر سامية سميرة سناء سارة سوسن سيرين سهام سعاد سها سهى تمارا
+      وفاء ياسمين زهراء زينب زينة زكية زهيرة هديل فيروز رنيم صفاء سحر سلام ريان رهف رغدة رقية سمية سوزان ثريا وئام
+      وجدان يمنى يسرى جود جودي نجلاء نهلة نهى نجاة نجلا باسكال`.split(/\s+/),
+    familyAr: `عبود عبدالله عبدالنور عبدو عشقر عطالله أيوب ايوب عزار عزي بكري بركات باشا باسيل بيضون بيطار
+      بستاني بطرس شعبان شاهين شمعون شبلي شديد شيدياق شويري ضاهر دغر داود درويش دبوق عيد فضل الله فاخوري فرح
+      فارس فرحات فواز فرم فرنجية جبران جعجع الجميل غانم غصن جرجس هاشم حاج حكيم حمادة حمادي همود حمدان حمدي حرب حريري
+      حسن حوي حايك هبيقة حبيقة هوبلاح حص حوراني حسين عيسى إيتاني ايتاني جابر جبور جعفر جمال جراح جبيلي جنبلاط كنعان كرم
+      كساب قاسم كفوري خلف خليل خطيب خضر خوري كبيسي لحود معلوف محفوض مخلوف منصور منصوري مطر مولى مرعي ميقاتي معوض
+      مراد مرعب مراد مرّ نحاس نجار ناكوزي نخلة نقاش نصر نصرالله ناصر نصار نعمة نوري عبيد عثمان رحال رحمة رعد رمضان رزق
+      رفاعي سعب صعب سعادة صباغ صبرا سادر صدر صافدي صقر صالح سلامة سالم صليبا سلوم سركيس صايغ سمعان صفير شعار شيتو شحادة
+      سليمان سرور طبّات طبّ طنوس طويل طرابلسي طعمة طحان تويني يعقوب يمين يزبك يونس زهار زيدان زخور زغبي زين
+      حميه فنيش جارودي قعدان حيدر حجازي حلبي حمصي حموي مصري كردي زعبي شامي دياب حنا حلاق دمشقي رستم نحلة جرجور
+      كردحي كرامة مشيك مشنتف حراتي حاطوم إسماعيل اسماعيل طراف مرهج متى بسط دكاش بزي برجاوي شلهوب شديد شماس دحداح
+      دقدوق دومط فعور غنام قزي خازن لطيف مارون موسى معوض مقرزل نادر ناكد نمر سوايا سكاف سكر تبال طيار طوق وهبه
+      ياسين زكريا زيادة`.split(/\s+/),
     // Words that are also common words: only count in a run of 2+ or after a cue.
-    ambiguousAr: `مالك نور أمل هدى سعيد ندى حسن كريم جميلة سلمى سعاد وفاء هند سناء رشا نبيل منى مها سلام جميل كمال
+    ambiguousAr: `مالك جمعة نور أمل هدى سعيد ندى حسن كريم جميلة سلمى سعاد وفاء هند سناء رشا نبيل منى مها سلام جميل كمال
       جمال مصري حلبي نجار خطيب حكيم حاج عيد فارس زين صدر طويل ياسين حرب فرح ريان رحمة شامي تركي كردي أمين
-      امين عون سرور شرف مراد علي نعمة طعمة حمد سالم`.split(/\s+/),
-    ambiguousLat: ['said', 'amal', 'nour', 'hind', 'amin', 'faith', 'hope'],
+      امين عون سرور شرف مراد علي نعمة طعمة حمد سالم رجا فضل نمر صقر نادر شديد ربيع رزق صالح ماهر
+      سلام جود غنى هلا مي ريم رلى رعد باشا`.split(/\s+/),
+    ambiguousLat: ['said', 'hope', 'faith', 'rose', 'grace', 'mark', 'joy'],
   };
 
   // Capitalised words that are not people. They stop a name from growing.
-  const stopLat = `Northbridge Relief Lebanon Kenya Colombia Beirut Nairobi Bogotá Bogota Tripoli Bekaa Zahle Zahlé Saida
-    Saïda Sidon Tyre Baalbek Baalbeck Jounieh Dekwaneh Hammam Nabatieh Akkar Kakuma Dadaab Eldoret Mombasa
-    Kisumu Nakuru Cúcuta Cucuta Medellín Medellin Cali Soacha Bucaramanga Barranquilla Cartagena Arauca Quibdó
-    Hospital Clinic Clinique Centre Center Office Bureau Street Road Rue Avenue Camp Camps School Church Mosque
-    Hotel Bank Ministry Department Programme Program Project Team Unit Cash Food Shelter Protection Health
-    Education Case Cases Referral Household Family Famille Familia Familias Beneficiary Bénéficiaire Complaint
-    Plainte Safeguarding Monday Tuesday Wednesday Thursday Friday Saturday Sunday Lundi Mardi Mercredi Jeudi
-    Vendredi Samedi Dimanche Lunes Martes Miércoles Jueves Viernes Sábado Domingo January February March April
-    May June July August September October November December Janvier Février Mars Avril Mai Juin Juillet Août
-    Septembre Octobre Novembre Décembre Enero Febrero Marzo Abril Mayo Junio Julio Agosto Septiembre Octubre
-    Noviembre Diciembre UNHCR WFP UNICEF IOM ICRC The Dear Please Thanks Thank Merci Bonjour Hello Hi Dr Mr Mrs Ms
-    Mme M Mlle Madame Monsieur Email Phone Tel Tél Mobile Courriel Mail Registration Registre Dossier Numéro
-    Number ID Passport Passeport DOB Contact Call Visit Visite Notes Note Summary Résumé Rapport Report
-    Interview Entretien Appel Meeting Reunión Follow Follow-up Referred Orienté Hotline Helpdesk Mount Beit Bourj
-    Jabal Wadi Nahr Dhabi`.split(/\s+/);
+  const stopLat = `Organization Organisation Lebanon Liban Beirut Beyrouth Tripoli Tripoli Saida Saïda Sidon Tyre Tyr Baalbek Baalbeck
+    Zahle Zahlé Jbeil Byblos Jounieh Halba Akkar Bekaa Bekaa Nabatieh Batroun Aley Chouf Metn Keserwan Koura Hermel
+    Dekwaneh Achrafieh Hamra Verdun Chiyah Ghobeiri Bourj Hammoud Dahieh Sin Fil Jdeideh Mansourieh Jnah Tariq
+    Hospital Clinic Clinique Centre Center Centro Office Bureau Street Road Rue Avenue Camp Camps School Ecole École
+    Church Mosque Hotel Bank Banque Ministry Ministère Department Programme Program Project Projet Team Equipe
+    Équipe Unit Cash Food Shelter Protection Health Education Case Cases Referral Household Family Famille
+    Beneficiary Bénéficiaire Complaint Plainte Safeguarding Hotline Helpdesk Warehouse Dépôt Depot Waybill Bordereau
+    Monday Tuesday Wednesday Thursday Friday Saturday Sunday Lundi Mardi Mercredi Jeudi Vendredi Samedi Dimanche
+    January February March April May June July August September October November December Janvier Février Mars Avril
+    Mai Juin Juillet Août Septembre Octobre Novembre Décembre USD LBP IBAN WH DSP RCV TRF DMG
+    The Dear Please Thanks Thank Merci Bonjour Bonsoir Hello Hi Salut Dr Mr Mrs Ms Mme M Mlle Madame Monsieur Email
+    Phone Tel Tél Mobile Courriel Mail Registration Registre Dossier Numéro Number ID Passport Passeport DOB
+    Contact Call Visit Visite Notes Note Summary Résumé Rapport Report Interview Entretien Appel Meeting Follow
+    Follow-up Referred Orienté Mount Beit Jabal Wadi Nahr Dhabi Landlord Tenant Locataire Propriétaire Caller
+    Appelant Driver Chauffeur Keeper Hygiene Hygiène Mattress Armenian Syrian Lebanese Palestinian French Arabic English
+    Night Overnight Hier Hi Hello Rent Loyer Contract Contrat Payment Virement Transfer`.split(/\s+/);
 
   const stopAr = `في من إلى الى على عن مع قال قالت أفاد أفادت اتصل اتصلت حضر حضرت زار زارت طلب طلبت أبلغ ابلغ أبلغت ذكر ذكرت
     يقيم تقيم يعمل تعمل وصل وصلت أخبر اخبر أخبرت بخصوص حول هو هي هذا هذه ذلك التي الذي لا لم لن قد كان كانت
     ان إن أن أنه انه أنها انها ثم و أو او بعد قبل عند لدى منذ حتى الى ابنها ابنه ابنته بنتها زوجها زوجته زوجتها
     والدها والدته والدتها أخوها أخوه أخته أخيه عمه خاله عمها خالتها أمه أمها أباه أبيها شكوى مساعدة طلب ملف رقم
-    الاسرة الأسرة العائلة عائلة أطفال طفل طفلة اطفال أولاد`.split(/\s+/);
+    الاسرة الأسرة العائلة عائلة أطفال طفل طفلة اطفال أولاد مريض مريضة متعب مصاب غائب حاضر موجود جديد كبير صغير
+    سنوات سنة سنين شخص أشخاص اشخاص عائلات`.split(/\s+/);
 
-  const api = { en, fr, sw, es, ar, stopLat, stopAr };
+  const api = { en, fr, ar, stopLat, stopAr };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else { globalThis.PG = globalThis.PG || {}; globalThis.PG.gazetteer = api; }
 })();
