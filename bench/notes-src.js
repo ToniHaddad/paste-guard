@@ -41,7 +41,7 @@ const SRC = {
     'Please prepare a hygiene kit for {P|Yvonne Gerges}, Tyre, to be collected by her cousin {P|Nabil Sfeir} (ID {I|123456789012}). His number is {T|03 765 432}. WH-12, project EA-2026.',
     'The landlord, Hajj {P|Ahmad Itani}, asked for a copy of the transfer to IBAN {B|LB71 0222 0000 0000 0018 8804 3392}. The tenant, {P|Fadia Itani}, is his niece, which we noted as a conflict of interest.',
     // ---- stress ----
-    'Met Ghada’s mother-in-law at the centre. {P|Tamar Kasparian}, 61, speaks only Armenian and Arabic, so her son {P|Hagop} translated. They moved from Bourj Hammoud after the building cracked. {P|Hagop}: {T|71 556 903}. File {C|CS-2026-006077}.',
+    'Met {P|Ghada}’s mother-in-law at the centre. {P|Tamar Kasparian}, 61, speaks only Armenian and Arabic, so her son {P|Hagop} translated. They moved from Bourj Hammoud after the building cracked. {P|Hagop}: {T|71 556 903}. File {C|CS-2026-006077}.',
     'Hotline, afternoon. A man who gave only his first name, {P|Wassim}, said the distribution list in Akkar includes his dead uncle {P|Nawfal}. Ref {C|HL-2026-000402}. His cousin {P|Rawan} is the contact: {T|76 445 120}.',
     'Overnight in the Jbeil school: {P|Mouna} and {P|Tamer}’s children have lice, {P|Joumana} from the clinic brought shampoo. Old Mr {P|Zakhia} refuses to move rooms. Ask {P|Tony} to bring two heaters. {P|Mouna}: {T|03 220 114}.',
     'Hello {P|Charbel}, can you load the cheese boxes for {P|Afif Daoud} in Halba? He is the cousin of Sister {P|Hala}, collects Saturday, has no phone, so use his brother {P|Nasri} on {T|71 000 345}. Waybill DSP-2026-00518.',

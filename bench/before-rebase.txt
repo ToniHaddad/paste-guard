@@ -1,19 +1,19 @@
-notes: 60 (en 20, fr 20, ar 20), labelled entities: 248
+notes: 60 (en 20, fr 20, ar 20), labelled entities: 249
 
 RECALL AND PRECISION, ALL NOTES, BY ENTITY TYPE
 group           gold  found  recall  preds correct precision
-PERSON           149    114   76.5%    121     119   98.3%
+PERSON           150    115   76.7%    121     120   99.2%
 PHONE             43     43  100.0%     47      43   91.5%
 EMAIL              3      3  100.0%      3       3  100.0%
 IBAN              12     12  100.0%     12      12  100.0%
 DOB                9      9  100.0%      9       9  100.0%
 ID                11      9   81.8%      9       9  100.0%
 CASE              21      0    0.0%      0       0      - 
-ALL              248    190   76.6%    201     195   97.0%
+ALL              249    191   76.7%    201     196   97.5%
 
 BY LANGUAGE
 group           gold  found  recall  preds correct precision
-en                84     70   83.3%     74      71   95.9%
+en                85     71   83.5%     74      72   97.3%
 fr                80     63   78.8%     66      65   98.5%
 ar                84     57   67.9%     61      59   96.7%
 
@@ -21,11 +21,11 @@ BY SPLIT (dev = tuned on; heldout = scored before tuning, a few generic fixes af
 group           gold  found  recall  preds correct precision
 dev              111    100   90.1%    105     101   96.2%
 heldout           54     37   68.5%     40      40  100.0%
-stress            83     53   63.9%     56      54   96.4%
+stress            84     54   64.3%     56      55   98.2%
 
 BY LANGUAGE AND TYPE
 group           gold  found  recall  preds correct precision
-en PERSON         50     43   86.0%     45      44   97.8%
+en PERSON         51     44   86.3%     45      45  100.0%
 en PHONE          15     15  100.0%     17      15   88.2%
 en EMAIL           1      1  100.0%      1       1  100.0%
 en IBAN            4      4  100.0%      4       4  100.0%
@@ -51,7 +51,7 @@ PERSON ONLY, BY LANGUAGE AND SPLIT
 group           gold  found  recall  preds correct precision
 en dev            20     20  100.0%     20      20  100.0%
 en heldout        10      7   70.0%      8       8  100.0%
-en stress         20     16   80.0%     17      16   94.1%
+en stress         21     17   81.0%     17      17  100.0%
 fr dev            22     22  100.0%     22      22  100.0%
 fr heldout        10      7   70.0%      8       8  100.0%
 fr stress         17     11   64.7%     12      12  100.0%
@@ -61,13 +61,13 @@ ar stress         21      8   38.1%      9       8   88.9%
 
 STRICT MODE (also redact every capitalised word that does not start a sentence), ALL TYPES, BY LANGUAGE
 group           gold  found  recall  preds correct precision
-en                84     77   91.7%     89      77   86.5%
+en                85     78   91.8%     89      78   87.6%
 fr                80     69   86.3%     76      69   90.8%
 ar                84     57   67.9%     61      59   96.7%
 
 STRICT MODE, PERSON ONLY, STRESS SPLIT
 group           gold  found  recall  preds correct precision
-en stress         20     20  100.0%     26      20   76.9%
+en stress         21     21  100.0%     26      21   80.8%
 fr stress         17     14   82.4%     16      14   87.5%
 ar stress         21      8   38.1%      9       8   88.9%
 
@@ -134,7 +134,6 @@ MISSED (leaks):
 FALSE POSITIVES (wrong span or type):
   en-02 [dev] PHONE: 2026-000312  (cue)
   en-07 [dev] PHONE: 2026-000341  (cue)
-  en-16 [stress] PERSON: Ghada  (gazetteer)
   fr-07 [dev] PHONE: 2026-000361  (cue)
   ar-07 [dev] PHONE: 2026-000341  (cue)
   ar-19 [stress] PERSON: خال  (cue)
